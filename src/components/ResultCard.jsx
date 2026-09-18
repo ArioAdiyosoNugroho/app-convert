@@ -60,7 +60,19 @@ export default function ResultCard({ result, originalUrl, onClose, onDownload })
     <div id="resultSection" className="result-section">
       <div className="media-card">
         {/* Media Preview Header */}
-        <div className="thumbnail-wrapper" id="previewContainer">
+        <div className="thumbnail-wrapper" id="previewContainer" style={{
+          position: 'relative',
+          width: '100%',
+          height: '220px',
+          backgroundColor: '#0A0A0D',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+          borderTopLeftRadius: '28px',
+          borderTopRightRadius: '28px',
+          flexShrink: 0,
+        }}>
           <button
             type="button"
             id="closeResult"
@@ -80,7 +92,14 @@ export default function ResultCard({ result, originalUrl, onClose, onDownload })
             </div>
           )}
 
-          <div id="slidesWrapper" className="slides-viewport">
+          <div id="slidesWrapper" className="slides-viewport" style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+          }}>
             {isVideo ? (
               <video
                 src={currentItem.url || result.thumbnail}
@@ -88,12 +107,28 @@ export default function ResultCard({ result, originalUrl, onClose, onDownload })
                 controls
                 playsInline
                 className="media-preview-content"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  display: 'block',
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                }}
               />
             ) : (
               <img
                 src={currentItem.url || result.thumbnail}
                 alt={result.title || 'Media preview'}
                 className="media-preview-content"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  display: 'block',
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                }}
                 onError={(e) => {
                   if (result.thumbnail && e.target.src !== result.thumbnail) {
                     e.target.src = result.thumbnail;
