@@ -3764,3 +3764,139 @@ input[type="text"]#urlInput::placeholder,
   margin: 0 auto;
 }
 
+/* ==========================================================================
+   19. CUSTOM SELECT DROPDOWN (Matching Reference Image 4)
+   Clean, Soft, Rounded & Minimalist Popover Dropdown
+   ========================================================================== */
+.custom-select-container {
+  position: relative;
+  display: inline-block;
+  min-width: 170px;
+  user-select: none;
+}
+
+.custom-select-trigger {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 16px;
+  background-color: var(--surface-subtle);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  font-family: var(--font-family) !important;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  outline: none;
+}
+
+.custom-select-trigger:hover,
+.custom-select-container.is-open .custom-select-trigger {
+  background-color: var(--surface);
+  border-color: var(--text-main);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.custom-select-arrow {
+  color: var(--text-secondary);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+
+.custom-select-container.is-open .custom-select-arrow {
+  transform: rotate(180deg);
+}
+
+.custom-select-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+}
+
+/* Floating Dropdown Popover */
+.custom-select-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 210px;
+  max-width: 300px;
+  background-color: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 6px;
+  box-shadow: 0 14px 36px -4px rgba(0, 0, 0, 0.14), 0 4px 12px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
+  animation: dropdownSlideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] .custom-select-dropdown {
+  background-color: #18181B;
+  border-color: #27272A;
+  box-shadow: 0 14px 36px -4px rgba(0, 0, 0, 0.6);
+}
+
+@keyframes dropdownSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.custom-select-options {
+  max-height: 240px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.custom-select-options::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-select-options::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.custom-select-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-family: var(--font-family) !important;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.custom-select-option:hover {
+  background-color: var(--primary-soft);
+  color: var(--text-main);
+}
+
+.custom-select-option.is-selected {
+  background-color: var(--primary-soft);
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.option-check {
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+}
+
+
