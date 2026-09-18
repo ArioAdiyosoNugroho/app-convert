@@ -57,8 +57,6 @@ export async function scrapeYouTube(url) {
         Accept: "application/json, text/plain, */*",
       };
 
-      // Batas waktu polling per konversi — disesuaikan agar aman di Vercel Hobby (10s limit per request)
-      // Setiap poll: 1000ms delay × 8 attempts = maks 8 detik per format
       const runConvert = async (format, quality) => {
         try {
           const convRes = await scraperFetch(
@@ -89,9 +87,9 @@ export async function scrapeYouTube(url) {
           if (!conv || conv.error || !conv.statusUrl) return null;
           let downloadUrl = null,
             attempts = 0;
-          // Dikurangi dari 30×1500ms → 12×1000ms agar tidak timeout di Vercel
-          while (!downloadUrl && attempts < 12) {
-            await new Promise((r) => setTimeout(r, 1000));
+          // Maksimal 5 attempt x 700ms (~3.5 detik) agar aman di limit Vercel (8s)
+          while (!downloadUrl && attempts < 5) {
+            await new Promise((r) => setTimeout(r, 700));
             const pollData = await scraperFetch(
               {
                 url: conv.statusUrl,
@@ -123,25 +121,12 @@ export async function scrapeYouTube(url) {
       };
 
       const downloads = [];
-      // Ambil hanya 2 resolusi populer secara paralel, lalu MP3
-      // Mengurangi total waktu dari 4-serial menjadi 2-parallel + 1
-      const [r1080, r720] = await Promise.all([
-        runConvert("mp4", "1080p"),
+      const [r720, mp3] = await Promise.all([
         runConvert("mp4", "720p"),
+        runConvert("mp3", ""),
       ]);
-      if (r1080?.url) downloads.push({ type: "MP4 1080p", url: r1080.url });
-      if (r720?.url) downloads.push({ type: "MP4 720p", url: r720.url });
-
-      // 360p sebagai fallback jika keduanya gagal
-      if (downloads.length === 0) {
-        const r360 = await runConvert("mp4", "360p");
-        if (r360?.url) downloads.push({ type: "MP4 360p", url: r360.url });
-      }
-
-      const mp3 = await runConvert("mp3", "");
-      if (mp3?.url) {
-        downloads.push({ type: "MP3", url: mp3.url });
-      }
+      if (r720?.url) downloads.push({ type: "MP4 720p", url: r720.url, quality: "HD 720p" });
+      if (mp3?.url) downloads.push({ type: "MP3 Audio", url: mp3.url, quality: "128kbps", isAudio: true });
 
       if (downloads.length > 0) {
         _ytSource = null;
@@ -163,59 +148,100 @@ export async function scrapeYouTube(url) {
         Referer: "https://ytmp3.mobi/",
         "User-Agent": CHROME_UA,
       };
-      const initData = await scraperFetch(
-        {
-          url: "https://a.ymcdn.org/api/v1/init?p=y&23=1llum1n471",
-          headers,
-        },
-        "ytmp3.mobi Init",
-      );
-      if (!initData || initData.error) throw new Error("Init failed");
-      const fetchSingle = async (format) => {
-        const convData = await scraperFetch(
+      try {
+        const initData = await scraperFetch(
           {
-            url: `${initData.convertURL}&v=${videoId}&f=${format}`,
+            url: "https://a.ymcdn.org/api/v1/init?p=y&23=1llum1n471",
             headers,
           },
-          "ytmp3.mobi Convert",
+          "ytmp3.mobi Init",
         );
-        if (!convData || convData.error) return null;
-        let progress = 0,
-          dlUrl = convData.downloadURL,
-          progUrl = convData.progressURL;
-        let attempts = 0;
-        // Dikurangi dari 15×2000ms → 7×1200ms agar aman di Vercel Hobby (10s limit)
-        while (progress < 3 && attempts < 7) {
-          await new Promise((r) => setTimeout(r, 1200));
-          const progData = await scraperFetch(
-            { url: progUrl, headers },
-            "ytmp3.mobi Progress",
-          );
-          if (!progData || progData.error) break;
-          progress = progData.progress;
-          if (progData.downloadURL) dlUrl = progData.downloadURL;
-          if (progress >= 3) break;
-          attempts++;
+        if (initData && !initData.error) {
+          const fetchSingle = async (format) => {
+            const convData = await scraperFetch(
+              {
+                url: `${initData.convertURL}&v=${videoId}&f=${format}`,
+                headers,
+              },
+              "ytmp3.mobi Convert",
+            );
+            if (!convData || convData.error) return null;
+            let progress = 0,
+              dlUrl = convData.downloadURL,
+              progUrl = convData.progressURL;
+            let attempts = 0;
+            while (progress < 3 && attempts < 4) {
+              await new Promise((r) => setTimeout(r, 700));
+              const progData = await scraperFetch(
+                { url: progUrl, headers },
+                "ytmp3.mobi Progress",
+              );
+              if (!progData || progData.error) break;
+              progress = progData.progress;
+              if (progData.downloadURL) dlUrl = progData.downloadURL;
+              if (progress >= 3) break;
+              attempts++;
+            }
+            if (dlUrl && progress >= 3) {
+              if (dlUrl.startsWith("//")) dlUrl = "https:" + dlUrl;
+              if (dlUrl.startsWith("/"))
+                dlUrl = "https://ytmp3.mobi" + dlUrl;
+              return dlUrl;
+            }
+            return null;
+          };
+          const [mp4Url, mp3Url] = await Promise.all([
+            fetchSingle("mp4"),
+            fetchSingle("mp3"),
+          ]);
+          const downloads = [];
+          if (mp4Url) downloads.push({ type: "MP4 Video", url: mp4Url, quality: "720p" });
+          if (mp3Url) downloads.push({ type: "MP3 Audio", url: mp3Url, quality: "128kbps", isAudio: true });
+          if (downloads.length > 0) {
+            _ytSource = null;
+            return createScraperResult(true, { ...meta, downloads, sourceUrl: url });
+          }
         }
-        if (dlUrl && progress >= 3) {
-          if (dlUrl.startsWith("//")) dlUrl = "https:" + dlUrl;
-          if (dlUrl.startsWith("/"))
-            dlUrl = "https://ytmp3.mobi" + dlUrl;
-          return dlUrl;
+      } catch (e) {}
+
+      console.warn("[ytmp3.mobi] Failed, trying Cobalt API fallback...");
+      _ytSource = "cobalt";
+      return await scrapeYouTube(url);
+    }
+
+    if (_ytSource === "cobalt") {
+      try {
+        const cobaltRes = await scraperFetch(
+          {
+            url: "https://api.cobalt.tools/api/json",
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              "User-Agent": CHROME_UA,
+            },
+            data: JSON.stringify({
+              url: `https://www.youtube.com/watch?v=${videoId}`,
+              vQuality: "720",
+            }),
+          },
+          "Cobalt API",
+        );
+
+        if (cobaltRes && cobaltRes.url) {
+          _ytSource = null;
+          return createScraperResult(true, {
+            ...meta,
+            downloads: [
+              { type: "MP4 Video (HD)", url: cobaltRes.url, quality: "720p" },
+            ],
+            sourceUrl: url,
+          });
         }
-        return null;
-      };
-      const [mp4Url, mp3Url] = await Promise.all([
-        fetchSingle("mp4"),
-        fetchSingle("mp3"),
-      ]);
-      const downloads = [];
-      if (mp4Url) downloads.push({ type: "MP4", url: mp4Url });
-      if (mp3Url) downloads.push({ type: "MP3", url: mp3Url });
-      if (!downloads.length)
-        throw new Error("Failed to get download links. Try again.");
+      } catch (e) {}
+
       _ytSource = null;
-      return createScraperResult(true, { ...meta, downloads, sourceUrl: url });
+      throw new Error("Unable to fetch YouTube download links right now. Please try again in a few moments.");
     }
 
     throw new Error("Invalid source selected");

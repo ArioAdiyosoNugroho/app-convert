@@ -260,19 +260,24 @@ export async function scraperFetch(options, serverName = "Server") {
     }
 
     const contentType = proxyRes.headers.get("content-type") || "";
-    if (contentType.includes("text/html")) {
-      throw new Error("Proxy server error: Received HTML page instead of API response. Please wait for Vercel deployment to complete.");
+    if (contentType.includes("text/html") || !proxyRes.ok) {
+      if (proxyRes.status === 502 || proxyRes.status === 504) {
+        throw new Error("Server proxy timed out (Vercel limit). Retrying next server...");
+      }
+      if (contentType.includes("text/html")) {
+        throw new Error("Proxy connection error. Please try again.");
+      }
     }
 
     let proxyJson;
     try {
       proxyJson = await proxyRes.json();
     } catch (e) {
-      throw new Error("Invalid JSON response from server proxy.");
+      throw new Error("Invalid response from proxy server.");
     }
 
-    if (!proxyRes.ok || proxyJson.error) {
-      throw new Error(proxyJson.error || `Proxy request failed (${proxyRes.status}).`);
+    if (proxyJson.error) {
+      throw new Error(proxyJson.error);
     }
 
     let resData = proxyJson.data;

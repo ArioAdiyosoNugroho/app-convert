@@ -8,7 +8,7 @@
  *  - Support file besar tanpa buffer penuh di memory server
  */
 
-const MAX_TIMEOUT_MS = 28000;
+const MAX_TIMEOUT_MS = 9000;
 
 export default async function handler(req, res) {
   // CORS headers

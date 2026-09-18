@@ -1,4 +1,4 @@
-const MAX_TIMEOUT_MS = 25000;
+const MAX_TIMEOUT_MS = 8000;
 
 export default async function handler(req, res) {
   const setStatus = (code) => {
@@ -80,6 +80,11 @@ export default async function handler(req, res) {
   delete fetchHeaders["content-length"];
   delete fetchHeaders["Content-Length"];
 
+  if (!fetchHeaders["user-agent"] && !fetchHeaders["User-Agent"]) {
+    fetchHeaders["User-Agent"] =
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
+  }
+
   const fetchOptions = {
     method: String(method).toUpperCase(),
     headers: fetchHeaders,
@@ -125,11 +130,11 @@ export default async function handler(req, res) {
     });
   } catch (err) {
     clearTimeout(timeoutId);
-    const message =
-      err.name === "AbortError"
-        ? "Upstream request timed out."
-        : err.message || "Proxy request failed.";
-    setStatus(502);
+    const isTimeout = err.name === "AbortError";
+    const message = isTimeout
+      ? "Upstream request timed out."
+      : err.message || "Proxy request failed.";
+    setStatus(isTimeout ? 504 : 502);
     sendJson({ error: message });
   }
 }
