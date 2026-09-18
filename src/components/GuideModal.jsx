@@ -96,10 +96,10 @@ export default function GuideModal({ isOpen, onClose }) {
           </label>
 
           <div className="guide-actions">
-            <button type="button" className="guide-close-btn" onClick={handleClose}>
+            <button type="button" className="primary-btn guide-close-btn" onClick={handleClose}>
               CLOSE
             </button>
-            <button type="button" className="guide-settings-btn" onClick={handleOpenSettings}>
+            <button type="button" className="secondary-btn guide-settings-btn" onClick={handleOpenSettings}>
               Open settings
             </button>
           </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import PinModal from '../components/PinModal';
 import ConfirmModal from '../components/ConfirmModal';
+import CustomSelect from '../components/CustomSelect';
 
 export default function SettingsPage() {
   const {
@@ -71,6 +72,18 @@ export default function SettingsPage() {
     { id: 'bubbles', name: 'Bubbles' },
   ];
 
+  const SERVERS = [
+    { id: 'ask', name: 'Ask every time (Recommended)' },
+    { id: 'server1', name: 'Always Server 1 (Primary)' },
+    { id: 'server2', name: 'Always Server 2 (Alternative)' },
+  ];
+
+  const RETENTIONS = [
+    { id: '30', name: 'Keep for 30 Days' },
+    { id: '60', name: 'Keep for 60 Days' },
+    { id: 'forever', name: 'Keep Forever' },
+  ];
+
   // Render Sub-Pages
   const renderSubPage = () => {
     switch (currentSubPage) {
@@ -96,17 +109,11 @@ export default function SettingsPage() {
                   <span className="row-title">{t('setting-language', 'Language')}</span>
                   <span className="row-desc">{t('setting-language-desc', 'Select application interface language')}</span>
                 </div>
-                <select
-                  className="settings-select"
+                <CustomSelect
+                  options={LANGUAGES}
                   value={lang}
-                  onChange={(e) => setLang(e.target.value)}
-                >
-                  {LANGUAGES.map((l) => (
-                    <option key={l.id} value={l.id}>
-                      {l.name}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setLang}
+                />
               </div>
 
               <div className="settings-row">
@@ -171,17 +178,11 @@ export default function SettingsPage() {
                   <span className="row-title">{t('setting-theme', 'Color Theme')}</span>
                   <span className="row-desc">Choose your preferred visual aesthetic</span>
                 </div>
-                <select
-                  className="settings-select"
+                <CustomSelect
+                  options={THEMES}
                   value={theme}
-                  onChange={(e) => setTheme(e.target.value)}
-                >
-                  {THEMES.map((th) => (
-                    <option key={th.id} value={th.id}>
-                      {th.name}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setTheme}
+                />
               </div>
 
               <div className="settings-row">
@@ -189,17 +190,11 @@ export default function SettingsPage() {
                   <span className="row-title">Typography / Font</span>
                   <span className="row-desc">Select custom typeface</span>
                 </div>
-                <select
-                  className="settings-select"
+                <CustomSelect
+                  options={FONTS}
                   value={font}
-                  onChange={(e) => setFont(e.target.value)}
-                >
-                  {FONTS.map((f) => (
-                    <option key={f.id} value={f.id}>
-                      {f.name}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setFont}
+                />
               </div>
 
               <div className="settings-row">
@@ -223,17 +218,11 @@ export default function SettingsPage() {
                     <span className="row-title">Animation Style</span>
                     <span className="row-desc">Choose background particle pattern</span>
                   </div>
-                  <select
-                    className="settings-select"
+                  <CustomSelect
+                    options={BG_SHAPES}
                     value={bgShape}
-                    onChange={(e) => setBgShape(e.target.value)}
-                  >
-                    {BG_SHAPES.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={setBgShape}
+                  />
                 </div>
               )}
 
@@ -277,15 +266,11 @@ export default function SettingsPage() {
                   <span className="row-title">Preferred Server</span>
                   <span className="row-desc">Default scraper server for TikTok, Instagram & YouTube</span>
                 </div>
-                <select
-                  className="settings-select"
+                <CustomSelect
+                  options={SERVERS}
                   value={preferServer}
-                  onChange={(e) => setPreferServer(e.target.value)}
-                >
-                  <option value="ask">Ask every time (Recommended)</option>
-                  <option value="server1">Always Server 1 (Primary)</option>
-                  <option value="server2">Always Server 2 (Alternative)</option>
-                </select>
+                  onChange={setPreferServer}
+                />
               </div>
 
               <div className="settings-row">
@@ -325,9 +310,8 @@ export default function SettingsPage() {
                 </div>
                 <button
                   type="button"
-                  className="secondary-btn"
+                  className="danger-btn-pill"
                   onClick={() => setConfirmResetOpen(true)}
-                  style={{ color: '#ff4d4f' }}
                 >
                   Clear History
                 </button>
@@ -413,18 +397,14 @@ export default function SettingsPage() {
                   <span className="row-title">History Retention</span>
                   <span className="row-desc">Automatically manage old download records</span>
                 </div>
-                <select
-                  className="settings-select"
-                  defaultValue="forever"
-                  onChange={(e) => {
-                    localStorage.setItem('mori_retention', e.target.value);
+                <CustomSelect
+                  options={RETENTIONS}
+                  value={localStorage.getItem('mori_retention') || 'forever'}
+                  onChange={(val) => {
+                    localStorage.setItem('mori_retention', val);
                     showToast('Setting saved', 'success');
                   }}
-                >
-                  <option value="30">Keep for 30 Days</option>
-                  <option value="60">Keep for 60 Days</option>
-                  <option value="forever">Keep Forever</option>
-                </select>
+                />
               </div>
 
               <div className="settings-row">
@@ -460,8 +440,8 @@ export default function SettingsPage() {
       ) : (
         <div id="settingsMainMenu">
           <div className="page-header">
-            <h2>{t('nav-settings', 'SETTINGS')}</h2>
-            <p>{t('settings-desc', 'Configure your experience')}</p>
+            <span className="page-subheading">CONFIGURATION</span>
+            <h2 className="page-title">{t('nav-settings', 'SETTINGS')}</h2>
           </div>
 
           <div className="settings-menu-list">

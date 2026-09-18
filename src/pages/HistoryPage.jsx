@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import ConfirmModal from '../components/ConfirmModal';
 
 export default function HistoryPage() {
-  const { history, totalDownloads, deleteHistoryItem, clearAllHistory, t, showToast } = useApp();
+  const { history, totalDownloads, deleteHistoryItem, clearAllHistory, setActivePage, t, showToast } = useApp();
   const [isEditing, setIsEditing] = useState(false);
   const [confirmClearOpen, setConfirmClearOpen] = useState(false);
 
@@ -24,6 +24,31 @@ export default function HistoryPage() {
     } catch {
       window.open(directUrl, '_blank');
     }
+  };
+
+  const copyUrl = (urlStr) => {
+    if (!urlStr) return;
+    navigator.clipboard.writeText(urlStr).then(() => {
+      showToast(t('toast-copied', 'Link copied to clipboard!'), 'success');
+    }).catch(() => {
+      showToast('Failed to copy', 'error');
+    });
+  };
+
+  // Helper to detect platform from URL
+  const getPlatformName = (urlStr) => {
+    const u = (urlStr || '').toLowerCase();
+    if (u.includes('tiktok.com')) return 'TikTok';
+    if (u.includes('instagram.com')) return 'Instagram';
+    if (u.includes('youtube.com') || u.includes('youtu.be')) return 'YouTube';
+    if (u.includes('twitter.com') || u.includes('x.com')) return 'Twitter/X';
+    if (u.includes('spotify.com')) return 'Spotify';
+    if (u.includes('pinterest.com') || u.includes('pin.it')) return 'Pinterest';
+    if (u.includes('threads.net')) return 'Threads';
+    if (u.includes('facebook.com')) return 'Facebook';
+    if (u.includes('bilibili.com')) return 'Bilibili';
+    if (u.includes('douyin.com')) return 'Douyin';
+    return 'Web Media';
   };
 
   return (
@@ -70,14 +95,19 @@ export default function HistoryPage() {
         )}
       </div>
 
-      {/* Signature Black Stats Card (Matching Reference image.png) */}
+      {/* Signature Black Stats Card (Matching HomePage Hero Card Proportions) */}
       <div className="history-stats-card">
+        <div className="hero-card-glow" />
+
         <div className="stats-top-row">
           <span className="stats-pill-badge">
             <span className="hero-pulse-dot" />
-            LIFETIME ENGINE
+            LIFETIME ARCHIVE
           </span>
-          <span className="stats-time-tag">Active</span>
+
+          <span className="stats-time-tag">
+            {history.length} {history.length === 1 ? 'record' : 'records'}
+          </span>
         </div>
 
         <div className="stats-content-row">
@@ -89,19 +119,20 @@ export default function HistoryPage() {
               </span>
               <span className="stats-unit">Items</span>
             </div>
+            <p className="stats-footnote">Clean, private local archive stored on your device</p>
           </div>
 
           <div className="stats-circle-box">
-            <svg viewBox="0 0 48 48" width="48" height="48">
-              <circle cx="24" cy="24" r="20" className="meter-bg" strokeWidth="4" fill="none" />
+            <svg viewBox="0 0 54 54" width="54" height="54">
+              <circle cx="27" cy="27" r="22" className="meter-bg" strokeWidth="5" fill="none" />
               <circle
-                cx="24"
-                cy="24"
-                r="20"
+                cx="27"
+                cy="27"
+                r="22"
                 className="meter-fill"
-                strokeWidth="4"
-                strokeDasharray="125"
-                strokeDashoffset="30"
+                strokeWidth="5"
+                strokeDasharray="138"
+                strokeDashoffset={history.length > 0 ? "25" : "138"}
                 strokeLinecap="round"
                 fill="none"
               />
@@ -109,83 +140,151 @@ export default function HistoryPage() {
             <span className="stats-circle-text">{history.length}</span>
           </div>
         </div>
+
+        {/* Action pills matching HomePage Hero Card */}
+        <div className="hero-card-bottom-actions">
+          <button
+            type="button"
+            className="hero-action-pill primary"
+            onClick={() => setActivePage('home')}
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            <span>Convert More</span>
+          </button>
+
+          {history.length > 0 && (
+            <button
+              type="button"
+              className="hero-action-pill secondary"
+              onClick={() => setConfirmClearOpen(true)}
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              </svg>
+              <span>Clear History</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* History List or Empty State */}
       {history.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-state-icon">
-            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <div className="empty-state-card">
+          <div className="empty-state-icon-box">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="9" />
               <polyline points="12 7 12 12 15 15" />
             </svg>
           </div>
-          <p className="empty-title">{t('empty-history-title', 'No history yet')}</p>
-          <span className="empty-desc">{t('empty-history-desc', 'Your downloads will show up here.')}</span>
+          <h3 className="empty-card-title">{t('empty-history-title', 'No history yet')}</h3>
+          <p className="empty-card-desc">
+            {t('empty-history-desc', 'Media you analyze and download will appear here automatically for fast offline re-access.')}
+          </p>
+          <button
+            type="button"
+            className="empty-cta-btn"
+            onClick={() => setActivePage('home')}
+          >
+            <span>Start Converting Media</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </button>
         </div>
       ) : (
         <div className="history-list">
-          {history.map((item, idx) => (
-            <div key={item.id} className="history-item">
-              <span className="history-item-number">{String(idx + 1).padStart(2, '0')}</span>
+          {history.map((item, idx) => {
+            const platformName = getPlatformName(item.url || item.sourceUrl);
+            const formatBadge = item.downloads?.[0]?.isAudio ? 'MP3' : 'MP4';
 
-              <div className="history-thumb-container">
-                {item.thumbnail ? (
-                  <img
-                    src={item.thumbnail}
-                    alt=""
-                    className="history-thumb-img"
-                  />
-                ) : (
-                  <div className="history-thumb-placeholder">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
-                    </svg>
+            return (
+              <div key={item.id} className="history-item">
+                <span className="history-item-number">{String(idx + 1).padStart(2, '0')}</span>
+
+                <div className="history-thumb-container">
+                  {item.thumbnail ? (
+                    <img
+                      src={item.thumbnail}
+                      alt=""
+                      className="history-thumb-img"
+                    />
+                  ) : (
+                    <div className="history-thumb-placeholder">
+                      <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
+                      </svg>
+                    </div>
+                  )}
+                  <span className="thumb-format-pill">{formatBadge}</span>
+                </div>
+
+                <div className="history-item-details">
+                  <h4 className="history-item-title" title={item.title}>
+                    {item.title || 'Untitled Media'}
+                  </h4>
+
+                  <div className="history-item-tags">
+                    <span className="history-platform-badge">{platformName}</span>
+                    <span className="history-item-date">
+                      {item.date ? new Date(item.date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : 'Recently saved'}
+                    </span>
                   </div>
-                )}
-              </div>
+                </div>
 
-              <div className="history-item-details">
-                <h4 className="history-item-title">
-                  {item.title || 'Untitled Media'}
-                </h4>
-                <p className="history-item-date">
-                  {item.date ? new Date(item.date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : 'Recently saved'}
-                </p>
-              </div>
+                <div className="history-item-actions">
+                  {isEditing ? (
+                    <button
+                      type="button"
+                      className="delete-history-btn"
+                      title="Delete item"
+                      onClick={() => deleteHistoryItem(item.id)}
+                      aria-label="Delete item"
+                    >
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                      </svg>
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        className="download-history-btn"
+                        title="Re-download"
+                        onClick={() => handleDownloadItem(item)}
+                        aria-label="Re-download"
+                      >
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                          <polyline points="7 10 12 15 17 10" />
+                          <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                      </button>
 
-              <div className="history-item-actions">
-                {isEditing ? (
-                  <button
-                    type="button"
-                    className="delete-history-btn"
-                    title="Delete item"
-                    onClick={() => deleteHistoryItem(item.id)}
-                    aria-label="Delete item"
-                  >
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="3 6 5 6 21 6" />
-                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                    </svg>
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="download-history-btn"
-                    title="Re-download"
-                    onClick={() => handleDownloadItem(item)}
-                    aria-label="Re-download"
-                  >
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                      <polyline points="7 10 12 15 17 10" />
-                      <line x1="12" y1="15" x2="12" y2="3" />
-                    </svg>
-                  </button>
-                )}
+                      <button
+                        type="button"
+                        className="copy-history-btn"
+                        title="Copy original link"
+                        onClick={() => copyUrl(item.url || item.sourceUrl)}
+                        aria-label="Copy link"
+                      >
+                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                        </svg>
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

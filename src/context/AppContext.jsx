@@ -51,6 +51,30 @@ export function AppProvider({ children }) {
   // Navigation
   const [activePage, setActivePage] = useState('home');
 
+  // View Mode: 'auto', 'desktop', 'mobile'
+  const [viewMode, setViewModeState] = useState(() => localStorage.getItem('mori_view_mode') || 'auto');
+  const [isDesktopScreen, setIsDesktopScreen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 1024;
+    }
+    return true;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktopScreen(window.innerWidth >= 1024);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const setViewMode = useCallback((mode) => {
+    setViewModeState(mode);
+    localStorage.setItem('mori_view_mode', mode);
+  }, []);
+
+  const effectiveMode = viewMode === 'auto' ? (isDesktopScreen ? 'desktop' : 'mobile') : viewMode;
+
   // Server Preference: 'ask', 'server1', 'server2'
   const [preferServer, setPreferServerState] = useState(() => localStorage.getItem('mori_prefer_server') || 'ask');
   const setPreferServer = useCallback((val) => {
@@ -206,6 +230,10 @@ export function AppProvider({ children }) {
         setGlass,
         activePage,
         setActivePage: handlePageSwitch,
+        viewMode,
+        setViewMode,
+        effectiveMode,
+        isDesktopScreen,
         preferServer,
         setPreferServer,
         bgAnim,
