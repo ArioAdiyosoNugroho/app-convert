@@ -3759,48 +3759,109 @@ input[type="text"]#urlInput::placeholder,
 }
 
 /* Desktop Settings Mode */
-.desktop-settings-mode {
-  width: 100%;
-  box-sizing: border-box;
+.desktop-settings-mode,
+.desktop-settings-mode #settingsMainMenu,
+.desktop-settings-mode .settings-sub-page {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  flex: 1 !important;
 }
 
 .desktop-settings-mode .settings-menu-list {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  width: 100%;
-  box-sizing: border-box;
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 20px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
   .desktop-settings-mode .settings-menu-list {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .desktop-settings-mode .settings-menu-list {
+    grid-template-columns: 1fr !important;
   }
 }
 
 .desktop-settings-mode .settings-menu-item {
-  height: 100%;
-  padding: 20px 22px;
-  box-sizing: border-box;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 24px 26px !important;
+  border-radius: 24px !important;
+  min-height: 110px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  background-color: var(--surface) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-.desktop-settings-mode .settings-sub-page {
-  width: 100%;
-  box-sizing: border-box;
+.desktop-settings-mode .settings-menu-item:hover {
+  border-color: var(--text-main) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08) !important;
+  transform: translateY(-2px) !important;
+}
+
+.desktop-settings-mode .menu-icon {
+  width: 52px !important;
+  height: 52px !important;
+  border-radius: 16px !important;
+  flex-shrink: 0 !important;
+}
+
+.desktop-settings-mode .menu-icon svg {
+  width: 26px !important;
+  height: 26px !important;
+}
+
+.desktop-settings-mode .menu-title {
+  font-size: 1.05rem !important;
+  font-weight: 800 !important;
+  color: var(--text-main) !important;
+  margin-bottom: 4px !important;
+  letter-spacing: 0.02em !important;
+}
+
+.desktop-settings-mode .menu-desc {
+  font-size: 0.85rem !important;
+  color: var(--text-secondary) !important;
+  line-height: 1.4 !important;
 }
 
 .desktop-settings-mode .settings-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
-  box-sizing: border-box;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .desktop-settings-mode .settings-row {
-  width: 100%;
-  padding: 20px 24px;
-  box-sizing: border-box;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 22px 28px !important;
+  border-radius: 22px !important;
+  background-color: var(--surface) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.desktop-settings-mode .row-title {
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+}
+
+.desktop-settings-mode .row-desc {
+  font-size: 0.88rem !important;
 }
 
 /* ==========================================================================
