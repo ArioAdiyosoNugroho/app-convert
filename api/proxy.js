@@ -6,6 +6,7 @@ export default async function handler(req, res) {
     else res.statusCode = code;
     return res;
   };
+
   const sendJson = (data) => {
     res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify(data));
@@ -44,6 +45,7 @@ export default async function handler(req, res) {
     headers = {},
     data,
     params,
+    responseType,
   } = body || {};
 
   if (!url || typeof url !== "string") {
@@ -97,24 +99,37 @@ export default async function handler(req, res) {
 
     const contentType = upstream.headers.get("content-type") || "";
     const isBinary =
-      contentType.includes("image") ||
-      contentType.includes("video") ||
-      contentType.includes("audio") ||
-      contentType.includes("octet-stream");
+      responseType === "arraybuffer" ||
+      /image|video|audio|octet-stream|font/.test(contentType);
 
-    setStatus(upstream.status);
-    res.setHeader("Content-Type", contentType || "application/json");
+    const responseHeaders = Object.fromEntries(upstream.headers.entries());
 
     if (isBinary) {
-      const buffer = await upstream.arrayBuffer();
-      res.end(Buffer.from(buffer));
-    } else {
-      const text = await upstream.text();
-      res.end(text);
+      const buf = Buffer.from(await upstream.arrayBuffer());
+      setStatus(200);
+      sendJson({
+        status: upstream.status,
+        headers: responseHeaders,
+        data: buf.toString("base64"),
+        encoding: "base64",
+      });
+      return;
     }
+
+    const text = await upstream.text();
+    setStatus(200);
+    sendJson({
+      status: upstream.status,
+      headers: responseHeaders,
+      data: text,
+    });
   } catch (err) {
     clearTimeout(timeoutId);
+    const message =
+      err.name === "AbortError"
+        ? "Upstream request timed out."
+        : err.message || "Proxy request failed.";
     setStatus(502);
-    sendJson({ error: "Proxy request failed", details: err.message });
+    sendJson({ error: message });
   }
 }

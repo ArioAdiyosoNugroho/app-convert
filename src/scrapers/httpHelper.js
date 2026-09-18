@@ -259,19 +259,20 @@ export async function scraperFetch(options, serverName = "Server") {
       clearTimeout(timeoutId);
     }
 
-    if (!proxyRes.ok) {
-      let detail = "";
-      try {
-        detail = (await proxyRes.json())?.error || "";
-      } catch (_) {}
-      throw new Error(
-        detail || `Proxy request failed (${proxyRes.status}).`,
-      );
+    const contentType = proxyRes.headers.get("content-type") || "";
+    if (contentType.includes("text/html")) {
+      throw new Error("Proxy server error: Received HTML page instead of API response. Please wait for Vercel deployment to complete.");
     }
 
-    const proxyJson = await proxyRes.json();
-    if (proxyJson.error) {
-      throw new Error(proxyJson.error);
+    let proxyJson;
+    try {
+      proxyJson = await proxyRes.json();
+    } catch (e) {
+      throw new Error("Invalid JSON response from server proxy.");
+    }
+
+    if (!proxyRes.ok || proxyJson.error) {
+      throw new Error(proxyJson.error || `Proxy request failed (${proxyRes.status}).`);
     }
 
     let resData = proxyJson.data;

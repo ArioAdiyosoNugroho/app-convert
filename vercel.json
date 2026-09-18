@@ -2,13 +2,18 @@
   "version": 2,
   "buildCommand": "vite build",
   "outputDirectory": "dist",
+  "functions": {
+    "api/proxy.js": {
+      "maxDuration": 30
+    }
+  },
   "rewrites": [
     {
-      "source": "/api/proxy",
-      "destination": "/api/proxy"
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
   ]
