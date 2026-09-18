@@ -1195,6 +1195,8 @@ input[type="text"]#urlInput::placeholder,
   max-width: 100%;
   box-sizing: border-box;
   overflow: hidden;
+  /* Prevent card from ever pushing layout wider than viewport */
+  contain: layout style;
   animation: resultSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1218,6 +1220,7 @@ input[type="text"]#urlInput::placeholder,
   position: relative;
   width: 100%;
   max-width: 100%;
+  min-width: 0;
   box-sizing: border-box;
   transition: var(--transition);
 }
@@ -1553,6 +1556,9 @@ input[type="text"]#urlInput::placeholder,
   align-items: center;
   gap: 6px;
   white-space: nowrap;
+  max-width: 120px;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
 .dl-progress-pill {
@@ -1703,6 +1709,56 @@ input[type="text"]#urlInput::placeholder,
   .btn-download-all-cta {
     font-size: 0.82rem;
     height: 42px;
+  }
+}
+
+/* Extra small phones (< 360px) — prevent any horizontal overflow */
+@media (max-width: 360px) {
+  .download-row {
+    gap: 4px;
+  }
+  .download-action-btn {
+    min-height: 40px;
+    padding: 5px 8px;
+    border-radius: 12px;
+  }
+  .dl-format-badge,
+  .dl-progress-pill {
+    padding: 3px 6px;
+    font-size: 0.65rem;
+    max-width: 80px;
+  }
+  .copy-link-btn {
+    width: 34px;
+    height: 40px;
+    border-radius: 10px;
+  }
+  .dl-item-index {
+    width: 14px;
+    font-size: 0.65rem;
+  }
+  .dl-name {
+    font-size: 0.76rem;
+  }
+  .dl-subtext {
+    font-size: 0.65rem;
+  }
+  .thumbnail-wrapper {
+    height: 130px;
+  }
+  .info-wrapper {
+    padding: 10px 10px;
+  }
+  .result-filter-tabs {
+    gap: 6px;
+  }
+  .filter-tab-btn {
+    padding: 3px 8px;
+    font-size: 0.68rem;
+  }
+  .btn-download-all-cta {
+    font-size: 0.78rem;
+    height: 38px;
   }
 }
 
