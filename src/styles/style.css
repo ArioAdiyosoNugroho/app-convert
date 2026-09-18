@@ -3760,8 +3760,47 @@ input[type="text"]#urlInput::placeholder,
 
 /* Desktop Settings Mode */
 .desktop-settings-mode {
-  max-width: 960px;
-  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.desktop-settings-mode .settings-menu-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .desktop-settings-mode .settings-menu-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.desktop-settings-mode .settings-menu-item {
+  height: 100%;
+  padding: 20px 22px;
+  box-sizing: border-box;
+}
+
+.desktop-settings-mode .settings-sub-page {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.desktop-settings-mode .settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.desktop-settings-mode .settings-row {
+  width: 100%;
+  padding: 20px 24px;
+  box-sizing: border-box;
 }
 
 /* ==========================================================================
