@@ -57,6 +57,8 @@ export async function scrapeYouTube(url) {
         Accept: "application/json, text/plain, */*",
       };
 
+      // Batas waktu polling per konversi — disesuaikan agar aman di Vercel Hobby (10s limit per request)
+      // Setiap poll: 1000ms delay × 8 attempts = maks 8 detik per format
       const runConvert = async (format, quality) => {
         try {
           const convRes = await scraperFetch(
@@ -87,8 +89,9 @@ export async function scrapeYouTube(url) {
           if (!conv || conv.error || !conv.statusUrl) return null;
           let downloadUrl = null,
             attempts = 0;
-          while (!downloadUrl && attempts < 30) {
-            await new Promise((r) => setTimeout(r, 1500));
+          // Dikurangi dari 30×1500ms → 12×1000ms agar tidak timeout di Vercel
+          while (!downloadUrl && attempts < 12) {
+            await new Promise((r) => setTimeout(r, 1000));
             const pollData = await scraperFetch(
               {
                 url: conv.statusUrl,
@@ -120,23 +123,23 @@ export async function scrapeYouTube(url) {
       };
 
       const downloads = [];
-      const tiers = ["1440p", "1080p", "720p", "360p"];
-      const tierLabel = (q) => (q === "1440p" ? "1440p (2K)" : q);
+      // Ambil hanya 2 resolusi populer secara paralel, lalu MP3
+      // Mengurangi total waktu dari 4-serial menjadi 2-parallel + 1
+      const [r1080, r720] = await Promise.all([
+        runConvert("mp4", "1080p"),
+        runConvert("mp4", "720p"),
+      ]);
+      if (r1080?.url) downloads.push({ type: "MP4 1080p", url: r1080.url });
+      if (r720?.url) downloads.push({ type: "MP4 720p", url: r720.url });
 
-      // Run sequential requests to avoid convert1s concurrency limits
-      for (const q of tiers) {
-        const r = await runConvert("mp4", q);
-        if (r && r.url) {
-          downloads.push({
-            type: `MP4 ${tierLabel(r.quality || q)}`,
-            url: r.url,
-          });
-        }
-        await new Promise((res) => setTimeout(res, 300));
+      // 360p sebagai fallback jika keduanya gagal
+      if (downloads.length === 0) {
+        const r360 = await runConvert("mp4", "360p");
+        if (r360?.url) downloads.push({ type: "MP4 360p", url: r360.url });
       }
 
       const mp3 = await runConvert("mp3", "");
-      if (mp3 && mp3.url) {
+      if (mp3?.url) {
         downloads.push({ type: "MP3", url: mp3.url });
       }
 
@@ -181,8 +184,9 @@ export async function scrapeYouTube(url) {
           dlUrl = convData.downloadURL,
           progUrl = convData.progressURL;
         let attempts = 0;
-        while (progress < 3 && attempts < 15) {
-          await new Promise((r) => setTimeout(r, 2000));
+        // Dikurangi dari 15×2000ms → 7×1200ms agar aman di Vercel Hobby (10s limit)
+        while (progress < 3 && attempts < 7) {
+          await new Promise((r) => setTimeout(r, 1200));
           const progData = await scraperFetch(
             { url: progUrl, headers },
             "ytmp3.mobi Progress",

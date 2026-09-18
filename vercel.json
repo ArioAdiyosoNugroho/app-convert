@@ -4,10 +4,10 @@
   "outputDirectory": "dist",
   "functions": {
     "api/proxy.js": {
-      "maxDuration": 30
+      "maxDuration": 60
     },
     "api/download.js": {
-      "maxDuration": 30
+      "maxDuration": 60
     }
   },
   "headers": [

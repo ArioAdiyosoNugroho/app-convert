@@ -145,6 +145,19 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Global: semua elemen tidak boleh overflow ke luar viewport secara horizontal */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Cegah semua elemen level block dari memaksa lebar > 100vw */
+img, video, svg, iframe, canvas {
+  max-width: 100%;
+  height: auto;
+}
+
 body {
   width: 100%;
   max-width: 100vw;
@@ -170,6 +183,7 @@ body {
   flex-direction: column;
   align-items: center;
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* --------------------------------------------------------------------------
@@ -466,10 +480,14 @@ main {
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 16px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .hero-card-text {
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .hero-subheading {
@@ -1123,7 +1141,25 @@ input[type="text"]#urlInput::placeholder,
 @media (max-width: 400px) {
   .platform-grid {
     grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
+    gap: 6px;
+  }
+  .platform-card-item {
+    padding: 10px 4px;
+    border-radius: 14px;
+    gap: 5px;
+  }
+  .platform-icon-circle {
+    width: 32px;
+    height: 32px;
+    min-width: 28px;
+    min-height: 28px;
+  }
+  .platform-icon-circle svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  .platform-name {
+    font-size: 0.58rem;
   }
 }
 
@@ -1140,6 +1176,8 @@ input[type="text"]#urlInput::placeholder,
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
   transition: var(--transition);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .platform-card-item:hover {
@@ -1153,8 +1191,10 @@ input[type="text"]#urlInput::placeholder,
 }
 
 .platform-icon-circle {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
+  min-width: 32px;
+  min-height: 32px;
   border-radius: 50%;
   background-color: var(--surface-subtle);
   border: 1px solid var(--border-color);
@@ -1163,6 +1203,7 @@ input[type="text"]#urlInput::placeholder,
   justify-content: center;
   color: var(--text-main);
   transition: var(--transition);
+  flex-shrink: 0;
 }
 
 .platform-card-item:hover .platform-icon-circle {
@@ -1173,9 +1214,9 @@ input[type="text"]#urlInput::placeholder,
 
 .platform-name {
   font-family: var(--font-family) !important;
-  font-size: 0.72rem;
+  font-size: 0.66rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
   color: var(--text-main);
   text-align: center;
@@ -1183,6 +1224,7 @@ input[type="text"]#urlInput::placeholder,
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+  width: 100%;
 }
 
 /* --------------------------------------------------------------------------
