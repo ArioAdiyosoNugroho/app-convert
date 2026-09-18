@@ -1186,7 +1186,7 @@ input[type="text"]#urlInput::placeholder,
   background-color: var(--surface);
   border: 1px solid var(--border-color);
   border-radius: 28px;
-  overflow: visible;
+  overflow: hidden;
   box-shadow: var(--shadow-card);
   position: relative;
   width: 100%;
@@ -1197,17 +1197,14 @@ input[type="text"]#urlInput::placeholder,
 .thumbnail-wrapper {
   position: relative;
   width: 100%;
-  /* Remove fixed height — let image define its own height within max-height */
-  max-height: 420px;
   background-color: #0A0A0D;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* No overflow:hidden so images are never clipped */
-  overflow: visible;
+  overflow: hidden;
   border-top-left-radius: 28px;
   border-top-right-radius: 28px;
-  padding: 0;
+  /* Height follows the image naturally */
 }
 
 .slides-viewport {
@@ -1215,38 +1212,22 @@ input[type="text"]#urlInput::placeholder,
   display: flex;
   align-items: center;
   justify-content: center;
-  /* No overflow so portrait/square images are never clipped */
-  overflow: visible;
 }
 
 .media-preview-content {
-  /* width: auto lets portrait images respect their natural aspect ratio */
-  width: auto;
-  max-width: 100%;
+  /* Fill container width, height scales automatically = no zoom/crop */
+  width: 100%;
   height: auto;
-  max-height: 420px;
+  max-height: 70vh;
   object-fit: contain;
   display: block;
-  margin: 0 auto;
   border-top-left-radius: 28px;
   border-top-right-radius: 28px;
 }
 
-@media (max-width: 768px) {
-  .thumbnail-wrapper {
-    max-height: 360px;
-  }
-  .media-preview-content {
-    max-height: 360px;
-  }
-}
-
 @media (max-width: 480px) {
-  .thumbnail-wrapper {
-    max-height: 300px;
-  }
   .media-preview-content {
-    max-height: 300px;
+    max-height: 55vh;
   }
 }
 
