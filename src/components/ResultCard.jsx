@@ -63,7 +63,7 @@ export default function ResultCard({ result, originalUrl, onClose, onDownload })
         <div className="thumbnail-wrapper" id="previewContainer" style={{
           position: 'relative',
           width: '100%',
-          height: '220px',
+          height: '180px',
           backgroundColor: '#0A0A0D',
           display: 'flex',
           alignItems: 'center',
