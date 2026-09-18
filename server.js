@@ -30,5 +30,5 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Moonlight React running at http://localhost:${PORT}`);
+  console.log(`Grabbl running at http://localhost:${PORT}`);
 });

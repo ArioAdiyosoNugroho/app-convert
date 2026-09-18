@@ -156,7 +156,7 @@ export default function SettingsPage({ isDesktop }) {
     },
     {
       id: 'about',
-      title: 'About Moonlight',
+      title: 'About Grabbl',
       desc: 'Version 4.3.1 & Documentation',
       icon: (
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -429,9 +429,9 @@ export default function SettingsPage({ isDesktop }) {
           <div className="settings-list about-card-wrapper">
             <div className="about-brand-box">
               <div className="about-avatar-frame">
-                <img src="/assets/icon.png" alt="Moonlight" className="about-avatar-img" />
+                <img src="/assets/icon.png" alt="Grabbl" className="about-avatar-img" />
               </div>
-              <h3 className="about-app-name">Moonlight Studio</h3>
+              <h3 className="about-app-name">Grabbl</h3>
               <span className="about-version-tag">Version 4.3.1 (React Production)</span>
               <p className="about-app-summary">
                 A minimalist, privacy-focused media downloader and analyzer. Designed for ultra-clean UI/UX with pure monochrome styling.
