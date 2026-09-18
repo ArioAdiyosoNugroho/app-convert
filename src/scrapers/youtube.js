@@ -7,6 +7,20 @@ export function setYouTubeSource(src) {
   _ytSource = src;
 }
 
+/**
+ * Deteksi apakah running di pure browser (bukan native Tauri/Capacitor).
+ * Jika iya, gunakan /api/youtube endpoint agar semua scraping terjadi server-side
+ * dalam satu Vercel function invocation, bukan per-request melalui /api/proxy.
+ */
+function isBrowserEnvironment() {
+  const hasInvoke =
+    window.__TAURI__?.core?.invoke ||
+    window.__TAURI_INTERNALS__?.invoke ||
+    window.__TAURI__?.invoke;
+  const hasCapacitor = !!window.MoriShareBridge || !!window.Capacitor;
+  return !hasInvoke && !hasCapacitor;
+}
+
 export async function scrapeYouTube(url) {
   let currentStatus = null;
   try {
@@ -27,6 +41,44 @@ export async function scrapeYouTube(url) {
     }
 
     if (!_ytSource) return { requireSource: true };
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // BROWSER ENVIRONMENT (Vercel deployment):
+    // Panggil /api/youtube endpoint yang melakukan SEMUA scraping server-side
+    // dalam satu function invocation, menghindari CORS + multi-hop timeout.
+    // ──────────────────────────────────────────────────────────────────────────
+    if (isBrowserEnvironment()) {
+      const ctrl = new AbortController();
+      const timeoutId = setTimeout(() => ctrl.abort(), 58000);
+      try {
+        const res = await fetch("/api/youtube", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url, source: _ytSource }),
+          signal: ctrl.signal,
+        });
+        clearTimeout(timeoutId);
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.message || `Server error ${res.status}`);
+        }
+        const data = await res.json();
+        if (!data.status) {
+          throw new Error(data.message || "YouTube conversion failed");
+        }
+        _ytSource = null;
+        return data; // { status: true, result: { title, thumbnail, downloads, sourceUrl } }
+      } finally {
+        clearTimeout(timeoutId);
+        _ytSource = null;
+      }
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // NATIVE ENVIRONMENT (Tauri/Capacitor — local/desktop app):
+    // Gunakan scraperFetch biasa karena CORS bypass sudah ditangani native bridge
+    // ──────────────────────────────────────────────────────────────────────────
 
     const oembed = async () => {
       let title = "YouTube Video";

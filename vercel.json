@@ -8,6 +8,9 @@
     },
     "api/download.js": {
       "maxDuration": 60
+    },
+    "api/youtube.js": {
+      "maxDuration": 60
     }
   },
   "headers": [
