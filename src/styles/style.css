@@ -1473,7 +1473,7 @@ input[type="text"]#urlInput::placeholder,
   font-size: 0.76rem;
   font-weight: 800;
   color: var(--text-muted);
-  width: 24px;
+  width: 22px;
   text-align: center;
   flex-shrink: 0;
 }
@@ -1481,17 +1481,17 @@ input[type="text"]#urlInput::placeholder,
 .download-action-btn {
   flex: 1;
   min-width: 0;
-  min-height: 52px;
+  min-height: 50px;
   background-color: var(--surface);
   border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 8px 16px;
+  border-radius: 14px;
+  padding: 6px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
   transition: var(--transition);
-  gap: 10px;
+  gap: 8px;
   box-sizing: border-box;
 }
 
@@ -1514,7 +1514,7 @@ input[type="text"]#urlInput::placeholder,
 
 .dl-name {
   font-family: var(--font-family) !important;
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   font-weight: 700;
   color: var(--text-main);
   white-space: nowrap;
@@ -1522,11 +1522,12 @@ input[type="text"]#urlInput::placeholder,
   text-overflow: ellipsis;
   width: 100%;
   display: block;
+  line-height: 1.25;
 }
 
 .dl-subtext {
   font-family: var(--font-family) !important;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 500;
   color: var(--text-muted);
   white-space: nowrap;
@@ -1534,6 +1535,7 @@ input[type="text"]#urlInput::placeholder,
   text-overflow: ellipsis;
   width: 100%;
   display: block;
+  line-height: 1.25;
 }
 
 .dl-btn-end {
@@ -1544,35 +1546,38 @@ input[type="text"]#urlInput::placeholder,
 
 .dl-format-badge {
   font-family: var(--font-family) !important;
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
-  padding: 5px 12px;
+  padding: 6px 12px;
   border-radius: var(--radius-pill);
   background-color: var(--primary);
   color: var(--on-primary);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 5px;
   white-space: nowrap;
-  max-width: 120px;
-  overflow: hidden;
   flex-shrink: 0;
+  box-sizing: border-box;
+  line-height: 1;
 }
 
 .dl-progress-pill {
   font-family: var(--font-family) !important;
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: var(--text-main);
   background-color: var(--surface-subtle);
-  padding: 5px 12px;
+  padding: 6px 12px;
   border-radius: var(--radius-pill);
   display: inline-flex;
   align-items: center;
   gap: 6px;
   white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1;
 }
 
 .dl-spin-dot {
@@ -1584,11 +1589,11 @@ input[type="text"]#urlInput::placeholder,
 }
 
 .copy-link-btn {
-  width: 48px;
-  height: 52px;
+  width: 44px;
+  height: 50px;
   background-color: var(--surface);
   border: 1px solid var(--border-color);
-  border-radius: 16px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1685,26 +1690,28 @@ input[type="text"]#urlInput::placeholder,
   }
   .download-action-btn {
     min-height: 44px;
-    padding: 6px 10px;
+    padding: 5px 8px;
     gap: 6px;
+    border-radius: 12px;
   }
   .dl-name {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
   }
   .dl-subtext {
-    font-size: 0.68rem;
+    font-size: 0.65rem;
   }
   .dl-format-badge, .dl-progress-pill {
-    padding: 3px 8px;
-    font-size: 0.68rem;
+    padding: 4px 8px;
+    font-size: 0.65rem;
   }
   .copy-link-btn {
     width: 38px;
     height: 44px;
+    border-radius: 12px;
   }
   .dl-item-index {
-    width: 18px;
-    font-size: 0.7rem;
+    width: 16px;
+    font-size: 0.68rem;
   }
   .btn-download-all-cta {
     font-size: 0.82rem;
@@ -1719,14 +1726,14 @@ input[type="text"]#urlInput::placeholder,
   }
   .download-action-btn {
     min-height: 40px;
-    padding: 5px 8px;
-    border-radius: 12px;
+    padding: 4px 6px;
+    border-radius: 10px;
+    gap: 4px;
   }
   .dl-format-badge,
   .dl-progress-pill {
     padding: 3px 6px;
-    font-size: 0.65rem;
-    max-width: 80px;
+    font-size: 0.62rem;
   }
   .copy-link-btn {
     width: 34px;
@@ -1735,13 +1742,13 @@ input[type="text"]#urlInput::placeholder,
   }
   .dl-item-index {
     width: 14px;
-    font-size: 0.65rem;
+    font-size: 0.62rem;
   }
   .dl-name {
-    font-size: 0.76rem;
+    font-size: 0.74rem;
   }
   .dl-subtext {
-    font-size: 0.65rem;
+    font-size: 0.62rem;
   }
   .thumbnail-wrapper {
     height: 130px;
