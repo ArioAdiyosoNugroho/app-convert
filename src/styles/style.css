@@ -1192,7 +1192,9 @@ input[type="text"]#urlInput::placeholder,
   margin-top: 24px;
   margin-bottom: 36px;
   width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
+  overflow: hidden;
   animation: resultSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1215,6 +1217,7 @@ input[type="text"]#urlInput::placeholder,
   box-shadow: var(--shadow-card);
   position: relative;
   width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
   transition: var(--transition);
 }
@@ -1222,6 +1225,7 @@ input[type="text"]#urlInput::placeholder,
 .thumbnail-wrapper {
   position: relative;
   width: 100%;
+  max-width: 100%;
   height: 280px;
   background-color: #0A0A0D;
   display: flex;
@@ -1231,16 +1235,19 @@ input[type="text"]#urlInput::placeholder,
   border-top-left-radius: 28px;
   border-top-right-radius: 28px;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .slides-viewport {
   width: 100%;
+  max-width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .media-preview-content {
@@ -1344,6 +1351,16 @@ input[type="text"]#urlInput::placeholder,
 
 .info-wrapper {
   padding: 22px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  .info-wrapper {
+    padding: 16px 14px;
+  }
 }
 
 .result-meta-top {
@@ -1351,6 +1368,7 @@ input[type="text"]#urlInput::placeholder,
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
+  flex-wrap: wrap;
 }
 
 .result-status-pill {
@@ -1363,6 +1381,7 @@ input[type="text"]#urlInput::placeholder,
   color: var(--on-primary);
   padding: 3px 10px;
   border-radius: var(--radius-pill);
+  white-space: nowrap;
 }
 
 .result-author-pill {
@@ -1370,6 +1389,10 @@ input[type="text"]#urlInput::placeholder,
   font-size: 0.74rem;
   font-weight: 600;
   color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .result-title {
@@ -1379,6 +1402,8 @@ input[type="text"]#urlInput::placeholder,
   color: var(--text-main);
   line-height: 1.35;
   margin: 0 0 14px 0;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .result-filter-tabs {
@@ -1389,6 +1414,10 @@ input[type="text"]#urlInput::placeholder,
   padding-bottom: 12px;
   border-bottom: 1px solid var(--border-color);
   overflow-x: auto;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
 }
 
 .filter-tab-btn {
@@ -1403,6 +1432,7 @@ input[type="text"]#urlInput::placeholder,
   cursor: pointer;
   white-space: nowrap;
   transition: var(--transition);
+  flex-shrink: 0;
 }
 
 .filter-tab-btn:hover {
@@ -1421,12 +1451,18 @@ input[type="text"]#urlInput::placeholder,
   flex-direction: column;
   gap: 10px;
   margin-bottom: 16px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .download-row {
   display: flex;
   align-items: center;
   gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .dl-item-index {
@@ -1436,10 +1472,12 @@ input[type="text"]#urlInput::placeholder,
   color: var(--text-muted);
   width: 24px;
   text-align: center;
+  flex-shrink: 0;
 }
 
 .download-action-btn {
   flex: 1;
+  min-width: 0;
   min-height: 52px;
   background-color: var(--surface);
   border: 1px solid var(--border-color);
@@ -1451,6 +1489,7 @@ input[type="text"]#urlInput::placeholder,
   cursor: pointer;
   transition: var(--transition);
   gap: 10px;
+  box-sizing: border-box;
 }
 
 .download-action-btn:hover {
@@ -1465,6 +1504,9 @@ input[type="text"]#urlInput::placeholder,
   align-items: flex-start;
   gap: 2px;
   text-align: left;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .dl-name {
@@ -1472,6 +1514,11 @@ input[type="text"]#urlInput::placeholder,
   font-size: 0.88rem;
   font-weight: 700;
   color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  display: block;
 }
 
 .dl-subtext {
@@ -1479,6 +1526,11 @@ input[type="text"]#urlInput::placeholder,
   font-size: 0.72rem;
   font-weight: 500;
   color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  display: block;
 }
 
 .dl-btn-end {
@@ -1500,6 +1552,7 @@ input[type="text"]#urlInput::placeholder,
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
 }
 
 .dl-progress-pill {
@@ -1513,6 +1566,7 @@ input[type="text"]#urlInput::placeholder,
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
 }
 
 .dl-spin-dot {
@@ -1536,6 +1590,7 @@ input[type="text"]#urlInput::placeholder,
   cursor: pointer;
   transition: var(--transition);
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .copy-link-btn:hover {
@@ -1552,10 +1607,14 @@ input[type="text"]#urlInput::placeholder,
 
 .result-primary-cta {
   margin-top: 8px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .btn-download-all-cta {
   width: 100%;
+  max-width: 100%;
   height: 50px;
   background-color: var(--primary);
   color: var(--on-primary);
@@ -1572,6 +1631,15 @@ input[type="text"]#urlInput::placeholder,
   cursor: pointer;
   transition: var(--transition);
   box-shadow: var(--shadow-accent);
+  box-sizing: border-box;
+  padding: 0 16px;
+}
+
+.btn-download-all-cta .cta-btn-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .btn-download-all-cta:hover {
@@ -1581,6 +1649,31 @@ input[type="text"]#urlInput::placeholder,
 
 .btn-download-all-cta:active {
   transform: scale(0.98);
+}
+
+@media (max-width: 480px) {
+  .download-row {
+    gap: 8px;
+  }
+  .download-action-btn {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+  .dl-format-badge, .dl-progress-pill {
+    padding: 4px 9px;
+    font-size: 0.7rem;
+  }
+  .copy-link-btn {
+    width: 42px;
+  }
+  .dl-item-index {
+    width: 20px;
+    font-size: 0.72rem;
+  }
+  .btn-download-all-cta {
+    font-size: 0.84rem;
+    height: 46px;
+  }
 }
 
 /* --------------------------------------------------------------------------

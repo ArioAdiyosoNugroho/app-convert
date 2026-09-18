@@ -60,19 +60,7 @@ export default function ResultCard({ result, originalUrl, onClose, onDownload })
     <div id="resultSection" className="result-section">
       <div className="media-card">
         {/* Media Preview Header */}
-        <div className="thumbnail-wrapper" id="previewContainer" style={{
-          position: 'relative',
-          width: '100%',
-          height: '180px',
-          backgroundColor: '#0A0A0D',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
-          borderTopLeftRadius: '28px',
-          borderTopRightRadius: '28px',
-          flexShrink: 0,
-        }}>
+        <div className="thumbnail-wrapper" id="previewContainer">
           <button
             type="button"
             id="closeResult"
@@ -282,7 +270,7 @@ export default function ResultCard({ result, originalUrl, onClose, onDownload })
                 className="btn-download-all-cta"
                 onClick={() => handleDownloadWithFeedback(filteredDownloads[0], 0)}
               >
-                <span>Save Best Quality ({filteredDownloads[0]?.quality || 'HD'})</span>
+                <span className="cta-btn-text">Save Best Quality ({filteredDownloads[0]?.quality || 'HD'})</span>
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="5" y1="12" x2="19" y2="12" />
                   <polyline points="12 5 19 12 12 19" />
