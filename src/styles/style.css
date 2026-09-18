@@ -1201,10 +1201,10 @@ input[type="text"]#urlInput::placeholder,
   display: flex;
   align-items: center;
   justify-content: center;
+  /* overflow:hidden for border-radius only — wrapper auto-expands to fit image */
   overflow: hidden;
   border-top-left-radius: 28px;
   border-top-right-radius: 28px;
-  /* Height follows the image naturally */
 }
 
 .slides-viewport {
@@ -1214,20 +1214,22 @@ input[type="text"]#urlInput::placeholder,
   justify-content: center;
 }
 
+/* The correct no-crop approach:
+   width:auto + max-width:100% → image never wider than container
+   height:auto + max-height    → image height is proportional, never exceeds screen
+   No object-fit needed — browser handles aspect ratio naturally */
 .media-preview-content {
-  /* Fill container width, height scales automatically = no zoom/crop */
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   height: auto;
-  max-height: 70vh;
-  object-fit: contain;
+  max-height: 60vh;
   display: block;
-  border-top-left-radius: 28px;
-  border-top-right-radius: 28px;
+  margin: 0 auto;
 }
 
 @media (max-width: 480px) {
   .media-preview-content {
-    max-height: 55vh;
+    max-height: 50vh;
   }
 }
 
