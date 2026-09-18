@@ -15,26 +15,26 @@ export default function DesktopTopbar({ onQuickPaste, onToggleBatch }) {
     switch (activePage) {
       case 'home':
         return {
-          breadcrumb: 'STUDIO / DASHBOARD',
+          breadcrumb: 'GRABBL / DASHBOARD',
           title: 'Media Converter Engine',
           subtitle: 'High-speed multi-source media analyzer & downloader',
         };
       case 'history':
         return {
-          breadcrumb: 'STUDIO / ARCHIVE',
+          breadcrumb: 'GRABBL / ARCHIVE',
           title: 'Saved Media History',
           subtitle: 'Private on-device archive of downloaded media',
         };
       case 'settings':
         return {
-          breadcrumb: 'STUDIO / PREFERENCES',
+          breadcrumb: 'GRABBL / PREFERENCES',
           title: 'System Preferences & Settings',
           subtitle: 'Customize appearance, engines, servers and security',
         };
       default:
         return {
-          breadcrumb: 'STUDIO / CONVERTER',
-          title: 'Moonlight Studio',
+          breadcrumb: 'GRABBL / CONVERTER',
+          title: 'Grabbl',
           subtitle: '',
         };
     }

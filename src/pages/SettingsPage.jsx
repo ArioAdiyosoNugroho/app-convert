@@ -45,7 +45,7 @@ export default function SettingsPage({ isDesktop }) {
   const [confirmResetOpen, setConfirmResetOpen] = useState(false);
 
   const THEMES = [
-    { id: 'default', name: 'Moonlight (Clean White & Black)' },
+    { id: 'default', name: 'Grabbl (Clean White & Black)' },
     { id: 'dark', name: 'Midnight Dark' },
     { id: 'amoled', name: 'AMOLED Pitch Black' },
     { id: 'tokyo', name: 'Obsidian Charcoal' },

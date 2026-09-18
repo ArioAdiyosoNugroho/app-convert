@@ -28,14 +28,10 @@ export default function DesktopSidebar() {
       {/* Brand Header */}
       <div className="desktop-sidebar-brand">
         <div className="sidebar-brand-avatar">
-          <img src="/assets/icon.png" alt="Moonlight" className="sidebar-brand-img" />
+          <img src="/assets/icon.png" alt="Grabbl" className="sidebar-brand-img" />
         </div>
         <div className="sidebar-brand-info">
-          <div className="sidebar-brand-tag-row">
-            <span className="sidebar-pulse-dot" />
-            <span className="sidebar-brand-tag">PRO STUDIO v4.3</span>
-          </div>
-          <h2 className="sidebar-brand-title">MOONLIGHT</h2>
+          <h2 className="sidebar-brand-title">GRABBL</h2>
         </div>
       </div>
 

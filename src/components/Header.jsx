@@ -8,14 +8,10 @@ export default function Header() {
     <header className="app-header">
       <div className="header-brand-group">
         <div className="brand-avatar-box">
-          <img src="/assets/icon.png" alt="Moonlight" className="brand-avatar-img" />
+          <img src="/assets/icon.png" alt="Grabbl" className="brand-avatar-img" />
         </div>
         <div className="brand-text-group">
-          <div className="brand-badge-row">
-            <span className="brand-mini-dot" />
-            <span className="brand-status-tag">CORE ENGINE v4.3</span>
-          </div>
-          <h1 className="brand-title">MOONLIGHT</h1>
+          <h1 className="brand-title">GRABBL</h1>
         </div>
       </div>
 
