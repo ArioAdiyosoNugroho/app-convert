@@ -1197,11 +1197,11 @@ input[type="text"]#urlInput::placeholder,
 .thumbnail-wrapper {
   position: relative;
   width: 100%;
+  height: 300px;
   background-color: #0A0A0D;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* overflow:hidden for border-radius only — wrapper auto-expands to fit image */
   overflow: hidden;
   border-top-left-radius: 28px;
   border-top-right-radius: 28px;
@@ -1209,27 +1209,30 @@ input[type="text"]#urlInput::placeholder,
 
 .slides-viewport {
   width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* The correct no-crop approach:
-   width:auto + max-width:100% → image never wider than container
-   height:auto + max-height    → image height is proportional, never exceeds screen
-   No object-fit needed — browser handles aspect ratio naturally */
+/* object-fit:contain ONLY works reliably when BOTH width + height are explicit on the element.
+   Container has explicit height:300px, so the image fills container and maintains aspect ratio fully. */
 .media-preview-content {
-  width: auto;
-  max-width: 100%;
-  height: auto;
-  max-height: 60vh;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
   display: block;
-  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .thumbnail-wrapper {
+    height: 260px;
+  }
 }
 
 @media (max-width: 480px) {
-  .media-preview-content {
-    max-height: 50vh;
+  .thumbnail-wrapper {
+    height: 220px;
   }
 }
 
