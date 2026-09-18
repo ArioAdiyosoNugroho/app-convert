@@ -227,6 +227,9 @@ export default function HomePage({ isDesktop }) {
           downloads: data.result.downloads,
         });
         showToast(t('toast-analyze-success', 'Media parsed successfully!'), 'success');
+        setTimeout(() => {
+          document.getElementById('resultSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 120);
       } else {
         throw new Error(data?.message || 'Failed to extract media links.');
       }
