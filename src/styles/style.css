@@ -688,7 +688,7 @@ input[type="text"]#urlInput {
   border: none;
   border-radius: var(--radius-input);
   font-family: var(--font-family) !important;
-  font-size: 0.94rem;
+  font-size: 16px;
   font-weight: 500;
   color: var(--text-main);
   outline: none;
@@ -866,6 +866,12 @@ input[type="text"]#urlInput::placeholder,
   font-size: 0.72rem;
   font-weight: 700;
   color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
+  min-width: 0;
+  flex-shrink: 0;
 }
 
 .convert-gauge-section {
@@ -1058,6 +1064,9 @@ input[type="text"]#urlInput::placeholder,
   padding-top: 10px;
   border-top: 1px solid var(--border-color);
   gap: 12px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .convert-target-url {
@@ -1066,16 +1075,19 @@ input[type="text"]#urlInput::placeholder,
   gap: 8px;
   font-size: 0.78rem;
   color: var(--text-muted);
+  flex: 1;
+  min-width: 0;
   max-width: 75%;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .url-truncate {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+  display: block;
 }
 
 .convert-cancel-btn {
@@ -2793,6 +2805,8 @@ input[type="text"]#urlInput::placeholder,
 
 .confirm-modal {
   padding: 24px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .confirm-body h2 {
@@ -2801,6 +2815,7 @@ input[type="text"]#urlInput::placeholder,
   font-weight: 800;
   color: var(--text-main);
   margin-bottom: 8px;
+  word-break: break-word;
 }
 
 .confirm-body p {
@@ -2810,6 +2825,8 @@ input[type="text"]#urlInput::placeholder,
   color: var(--text-muted);
   line-height: 1.45;
   margin-bottom: 24px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .confirm-actions {
