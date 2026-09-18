@@ -1652,27 +1652,57 @@ input[type="text"]#urlInput::placeholder,
 }
 
 @media (max-width: 480px) {
-  .download-row {
-    gap: 8px;
+  .thumbnail-wrapper {
+    height: 150px;
   }
-  .download-action-btn {
-    padding: 8px 10px;
-    gap: 6px;
+  .info-wrapper {
+    padding: 12px 12px;
   }
-  .dl-format-badge, .dl-progress-pill {
-    padding: 4px 9px;
-    font-size: 0.7rem;
+  .result-title {
+    font-size: 0.92rem;
+    margin-bottom: 8px;
   }
-  .copy-link-btn {
-    width: 42px;
+  .result-filter-tabs {
+    margin-bottom: 10px;
+    padding-bottom: 6px;
   }
-  .dl-item-index {
-    width: 20px;
+  .filter-tab-btn {
+    padding: 4px 10px;
     font-size: 0.72rem;
   }
+  .download-options {
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .download-row {
+    gap: 6px;
+  }
+  .download-action-btn {
+    min-height: 44px;
+    padding: 6px 10px;
+    gap: 6px;
+  }
+  .dl-name {
+    font-size: 0.8rem;
+  }
+  .dl-subtext {
+    font-size: 0.68rem;
+  }
+  .dl-format-badge, .dl-progress-pill {
+    padding: 3px 8px;
+    font-size: 0.68rem;
+  }
+  .copy-link-btn {
+    width: 38px;
+    height: 44px;
+  }
+  .dl-item-index {
+    width: 18px;
+    font-size: 0.7rem;
+  }
   .btn-download-all-cta {
-    font-size: 0.84rem;
-    height: 46px;
+    font-size: 0.82rem;
+    height: 42px;
   }
 }
 
