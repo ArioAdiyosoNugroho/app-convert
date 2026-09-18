@@ -4,6 +4,7 @@ import ResultCard from '../components/ResultCard';
 import ConvertProgress from '../components/ConvertProgress';
 import ServerSelectModal from '../components/ServerSelectModal';
 import BatchModal from '../components/BatchModal';
+import { downloadFile } from '../utils/downloadFile';
 
 import {
   setTikTokSource,
@@ -335,19 +336,26 @@ export default function HomePage({ isDesktop }) {
   };
 
   const handleDownloadSingle = (dlOption, currentResult) => {
-    try {
-      const a = document.createElement('a');
-      a.href = dlOption.url;
-      a.download = '';
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      showToast(t('toast-download-started', 'Download started!'), 'success');
-    } catch {
-      window.open(dlOption.url, '_blank');
+    if (!dlOption?.url) {
+      showToast('No download URL available.', 'error');
+      return;
     }
+
+    // Hint untuk nama file (quality label atau format)
+    const hint = dlOption.quality || dlOption.type || dlOption.format || 'media';
+
+    downloadFile(dlOption.url, hint, {
+      onSuccess: () => {
+        showToast(t('toast-download-started', 'Download started!'), 'success');
+      },
+      onFallback: () => {
+        // Berhasil buka tab, tapi tidak bisa force download (CORS + proxy gagal)
+        showToast('Opening in new tab — tap & hold to save manually.', 'info');
+      },
+      onError: (msg) => {
+        showToast(msg || 'Download failed. Please try again.', 'error');
+      },
+    });
   };
 
   const focusInput = () => {
