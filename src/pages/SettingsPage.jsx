@@ -4,7 +4,7 @@ import PinModal from '../components/PinModal';
 import ConfirmModal from '../components/ConfirmModal';
 import CustomSelect from '../components/CustomSelect';
 
-export default function SettingsPage() {
+export default function SettingsPage({ isDesktop }) {
   const {
     lang,
     setLang,
@@ -30,6 +30,8 @@ export default function SettingsPage() {
     clearAllHistory,
     showToast,
     setGuideModalOpen,
+    viewMode,
+    setViewMode,
   } = useApp();
 
   const [currentSubPage, setCurrentSubPage] = useState(null);
@@ -84,6 +86,12 @@ export default function SettingsPage() {
     { id: 'forever', name: 'Keep Forever' },
   ];
 
+  const VIEW_MODES = [
+    { id: 'auto', name: 'Auto (Screen Responsive)' },
+    { id: 'desktop', name: 'Always Desktop Mode' },
+    { id: 'mobile', name: 'Always Mobile Mode' },
+  ];
+
   // Render Sub-Pages
   const renderSubPage = () => {
     switch (currentSubPage) {
@@ -104,6 +112,21 @@ export default function SettingsPage() {
             </div>
 
             <div className="settings-list">
+              <div className="settings-row">
+                <div className="row-text">
+                  <span className="row-title">Display Layout Mode</span>
+                  <span className="row-desc">Choose between Desktop Dashboard or Mobile App interface</span>
+                </div>
+                <CustomSelect
+                  options={VIEW_MODES}
+                  value={viewMode}
+                  onChange={(val) => {
+                    setViewMode(val);
+                    showToast(`Layout set to ${val === 'auto' ? 'Auto' : val === 'desktop' ? 'Desktop' : 'Mobile'}`, 'success');
+                  }}
+                />
+              </div>
+
               <div className="settings-row">
                 <div className="row-text">
                   <span className="row-title">{t('setting-language', 'Language')}</span>
@@ -434,7 +457,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div id="settingsPage" className="page-content">
+    <div id="settingsPage" className={`page-content ${isDesktop ? 'desktop-settings-mode' : ''}`}>
       {currentSubPage ? (
         renderSubPage()
       ) : (

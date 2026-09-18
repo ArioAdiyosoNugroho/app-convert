@@ -27,8 +27,8 @@ import {
   scrapePixiv,
 } from '../scrapers/index.js';
 
-export default function HomePage() {
-  const { t, preferServer, addToHistory, totalDownloads, showToast } = useApp();
+export default function HomePage({ isDesktop }) {
+  const { t, preferServer, history, addToHistory, totalDownloads, showToast, setActivePage } = useApp();
 
   const [url, setUrl] = useState('');
   const [batchText, setBatchText] = useState('');
@@ -430,9 +430,11 @@ export default function HomePage() {
   ];
 
   return (
-    <div id="homePage" className="page-content">
-      {/* Signature Black Hero Dashboard Card (Matching reference image.png & image2.png) */}
-      <div className="hero-engine-card">
+    <div id="homePage" className={`page-content ${isDesktop ? 'desktop-home-mode' : ''}`}>
+      <div className="home-layout-grid">
+        <div className="home-main-col">
+          {/* Signature Black Hero Dashboard Card (Matching reference image.png & image2.png) */}
+          <div className="hero-engine-card">
         <div className="hero-card-glow" />
 
         <div className="hero-card-top">
@@ -656,6 +658,135 @@ export default function HomePage() {
           ))}
         </div>
       </div>
+    </div>
+
+      {/* Desktop Side Widget Column (Shown in Desktop Mode) */}
+      {isDesktop && (
+        <aside className="home-desktop-side-col">
+          {/* Widget 1: Quick Recent Downloads */}
+          <div className="desktop-widget-card recent-downloads-widget">
+            <div className="widget-header">
+              <div className="widget-title-group">
+                <span className="widget-badge-dot" />
+                <h3 className="widget-title">Recent Activity</h3>
+              </div>
+              <button
+                type="button"
+                className="widget-link-btn"
+                onClick={() => setActivePage('history')}
+              >
+                Archive ({history.length})
+              </button>
+            </div>
+
+            {history.length === 0 ? (
+              <div className="widget-empty-box">
+                <p>No downloads yet today.</p>
+                <span>Links you convert will appear here for instant 1-click re-download.</span>
+              </div>
+            ) : (
+              <div className="widget-recent-list">
+                {history.slice(0, 4).map((item) => (
+                  <div key={item.id} className="widget-recent-item">
+                    <div className="widget-item-thumb">
+                      {item.thumbnail ? (
+                        <img src={item.thumbnail} alt="" />
+                      ) : (
+                        <div className="widget-thumb-placeholder">
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                    <div className="widget-item-meta">
+                      <span className="widget-item-title" title={item.title}>
+                        {item.title || 'Media file'}
+                      </span>
+                      <span className="widget-item-sub">
+                        {new Date(item.date).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      className="widget-quick-dl-btn"
+                      title="Re-download"
+                      onClick={() => {
+                        if (item.downloads?.[0]) {
+                          handleDownloadSingle(item.downloads[0], item);
+                        } else if (item.url) {
+                          window.open(item.url, '_blank');
+                        }
+                      }}
+                    >
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Widget 2: Engine Diagnostics & Health */}
+          <div className="desktop-widget-card engine-diag-widget">
+            <div className="widget-header">
+              <div className="widget-title-group">
+                <span className="widget-badge-dot" />
+                <h3 className="widget-title">Engine Health</h3>
+              </div>
+              <span className="widget-status-tag">OPTIMAL</span>
+            </div>
+
+            <div className="diag-metrics-grid">
+              <div className="diag-metric-item">
+                <span className="diag-val">{totalDownloads.toLocaleString()}</span>
+                <span className="diag-lbl">Processed Media</span>
+              </div>
+              <div className="diag-metric-item">
+                <span className="diag-val">14/14</span>
+                <span className="diag-lbl">Engines Ready</span>
+              </div>
+              <div className="diag-metric-item">
+                <span className="diag-val">1080p</span>
+                <span className="diag-lbl">Max Resolution</span>
+              </div>
+              <div className="diag-metric-item">
+                <span className="diag-val">0 Ads</span>
+                <span className="diag-lbl">Clean Stream</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Widget 3: Quick Batch Converter Launcher */}
+          <div className="desktop-widget-card batch-quick-widget">
+            <div className="batch-quick-content">
+              <div className="batch-quick-text">
+                <h4>Batch Multi-Link Queue</h4>
+                <p>Paste multiple links from TikTok, Instagram or YouTube to download concurrently.</p>
+              </div>
+              <button
+                type="button"
+                className="batch-quick-btn"
+                onClick={() => {
+                  setIsBatchMode(true);
+                  focusInput();
+                }}
+              >
+                <span>Launch Batch Mode</span>
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </aside>
+      )}
+    </div>
 
       {/* Choose Server Modal */}
       <ServerSelectModal
