@@ -841,6 +841,9 @@ input[type="text"]#urlInput::placeholder,
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  min-width: 0;
+  overflow: hidden;
+  width: 100%;
 }
 
 .convert-header-left {
@@ -889,6 +892,11 @@ input[type="text"]#urlInput::placeholder,
   font-size: 0.72rem;
   font-weight: 700;
   color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 55%;
+  flex-shrink: 1;
 }
 
 .convert-gauge-section {
@@ -896,6 +904,9 @@ input[type="text"]#urlInput::placeholder,
   align-items: center;
   gap: 20px;
   padding: 8px 4px;
+  min-width: 0;
+  overflow: hidden;
+  width: 100%;
 }
 
 .radial-progress-wrapper {
@@ -987,6 +998,9 @@ input[type="text"]#urlInput::placeholder,
 .convert-stepper-container {
   position: relative;
   padding: 10px 4px 4px 4px;
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .stepper-track-line {
@@ -1081,6 +1095,9 @@ input[type="text"]#urlInput::placeholder,
   padding-top: 10px;
   border-top: 1px solid var(--border-color);
   gap: 12px;
+  min-width: 0;
+  overflow: hidden;
+  width: 100%;
 }
 
 .convert-target-url {
@@ -1089,16 +1106,19 @@ input[type="text"]#urlInput::placeholder,
   gap: 8px;
   font-size: 0.78rem;
   color: var(--text-muted);
-  max-width: 75%;
+  min-width: 0;
+  flex: 1;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .url-truncate {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+  max-width: 100%;
+  display: block;
 }
 
 .convert-cancel-btn {
