@@ -67,6 +67,24 @@ export async function scrapeSpotify(url) {
     }
   }
 
+  // --- Primary: High-speed server-side Spotify -> MP3 Converter Endpoint ---
+  try {
+    const apiRes = await fetch("/api/spotify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url }),
+    });
+    if (apiRes.ok) {
+      const apiData = await apiRes.json();
+      if (apiData && apiData.status && apiData.result) {
+        _spSource = null;
+        return apiData;
+      }
+    }
+  } catch (e) {
+    console.warn("Server-side Spotify endpoint failed, falling back to legacy scrapers:", e.message);
+  }
+
   let currentStatus = null;
   try {
     if (_spSource === "soundloaders") {

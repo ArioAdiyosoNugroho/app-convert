@@ -20,10 +20,13 @@ const PROXY_ENDPOINT = '/api/proxy';
  * @returns {string}
  */
 function guessFilename(url, contentType = '', hint = '') {
+  const isAudioHint = /mp3|audio|sound/i.test(hint);
+  const isVideoHint = /mp4|video|720p|1080p|360p|hd/i.test(hint);
+
   try {
     const path = new URL(url).pathname;
     const basename = path.split('/').pop().split('?')[0];
-    if (basename && /\.\w{2,5}$/.test(basename)) {
+    if (basename && /\.\w{2,5}$/.test(basename) && !/\.(html?|php|aspx?|jsp)$/i.test(basename)) {
       return decodeURIComponent(basename);
     }
   } catch (_) {
@@ -31,15 +34,15 @@ function guessFilename(url, contentType = '', hint = '') {
   }
 
   let ext = '';
-  if (/video/.test(contentType)) ext = '.mp4';
-  else if (/audio/.test(contentType)) ext = '.mp3';
+  if (/video/.test(contentType) || isVideoHint) ext = '.mp4';
+  else if (/audio/.test(contentType) || isAudioHint) ext = '.mp3';
   else if (/image\/jpeg/.test(contentType)) ext = '.jpg';
   else if (/image\/png/.test(contentType)) ext = '.png';
   else if (/image\/webp/.test(contentType)) ext = '.webp';
   else if (/pdf/.test(contentType)) ext = '.pdf';
 
   const slug = hint ? hint.replace(/[^a-z0-9]+/gi, '_').toLowerCase() : 'media';
-  return `grabbl_${slug}${ext || ''}`;
+  return `grabbl_${slug}${ext || (isAudioHint ? '.mp3' : '')}`;
 }
 
 /**
@@ -72,6 +75,9 @@ async function fetchDirect(url) {
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const contentType = res.headers.get('content-type') || '';
+  if (contentType.includes('text/html')) {
+    throw new Error('Target returned HTML page instead of binary media.');
+  }
   const blob = await res.blob();
   return { blob, contentType };
 }
@@ -91,6 +97,9 @@ async function fetchViaDownloadEndpoint(url, hint) {
   });
   if (!res.ok) throw new Error(`Download endpoint HTTP ${res.status}`);
   const contentType = res.headers.get('content-type') || 'application/octet-stream';
+  if (contentType.includes('text/html')) {
+    throw new Error('Download endpoint returned HTML error page.');
+  }
   const blob = await res.blob();
   return { blob, contentType };
 }
@@ -110,6 +119,9 @@ async function fetchViaProxy(url) {
   if (json.error) throw new Error(json.error);
 
   const contentType = json.headers?.['content-type'] || 'application/octet-stream';
+  if (contentType.includes('text/html')) {
+    throw new Error('Proxy returned HTML error page.');
+  }
 
   let blob;
   if (json.encoding === 'base64' && json.data) {
