@@ -369,13 +369,20 @@ export default function HomePage({ isDesktop }) {
 
     // Hint untuk nama file (quality label atau format)
     const hint = dlOption.quality || dlOption.type || dlOption.format || 'media';
+    const mediaType = dlOption.isImage || dlOption.type?.toLowerCase().includes('cover')
+      ? 'Cover Art'
+      : dlOption.isAudio
+      ? 'MP3 Audio'
+      : 'File';
 
     downloadFile(dlOption.url, hint, {
+      onStart: () => {
+        showToast(t('toast-downloading', `📥 Downloading ${mediaType}... Please wait`), 'info');
+      },
       onSuccess: () => {
-        showToast(t('toast-download-started', 'Download started!'), 'success');
+        showToast(t('toast-download-success', `✅ ${mediaType} saved successfully!`), 'success');
       },
       onFallback: () => {
-        // Berhasil buka tab, tapi tidak bisa force download (CORS + proxy gagal)
         showToast('Opening in new tab — tap & hold to save manually.', 'info');
       },
       onError: (msg) => {

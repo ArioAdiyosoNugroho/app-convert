@@ -50,9 +50,18 @@ export default function ResultCard({ result, originalUrl, onClose, onDownload })
   };
 
   // Filter downloads
+  const hasVideos = downloads.some((dl) => !dl.isAudio && !dl.isImage && !dl.type?.toLowerCase().includes('cover'));
+  const hasAudio = downloads.some((dl) => dl.isAudio || dl.type?.toLowerCase().includes('audio') || dl.format === 'mp3');
+  const hasImages = downloads.some((dl) => dl.isImage || dl.type?.toLowerCase().includes('cover') || dl.format === 'jpg' || dl.format === 'png');
+
   const filteredDownloads = downloads.filter((dl) => {
-    if (filterType === 'video') return !dl.isAudio;
-    if (filterType === 'audio') return dl.isAudio || dl.type?.toLowerCase().includes('audio') || dl.format === 'mp3';
+    const isImg = dl.isImage || dl.type?.toLowerCase().includes('cover') || dl.format === 'jpg' || dl.format === 'png';
+    const isAud = dl.isAudio || dl.type?.toLowerCase().includes('audio') || dl.format === 'mp3';
+    const isVid = !isAud && !isImg;
+
+    if (filterType === 'video') return isVid;
+    if (filterType === 'audio') return isAud;
+    if (filterType === 'image') return isImg;
     return true;
   });
 
@@ -169,7 +178,7 @@ export default function ResultCard({ result, originalUrl, onClose, onDownload })
             {result.title || 'Media Processed Successfully'}
           </h2>
 
-          {/* Quick Filter Tabs (Reference image copy.png style) */}
+          {/* Quick Filter Tabs */}
           <div className="result-filter-tabs">
             <button
               type="button"
@@ -178,30 +187,44 @@ export default function ResultCard({ result, originalUrl, onClose, onDownload })
             >
               All Formats ({downloads.length})
             </button>
-            <button
-              type="button"
-              className={`filter-tab-btn ${filterType === 'video' ? 'active' : ''}`}
-              onClick={() => setFilterType('video')}
-            >
-              Video (MP4)
-            </button>
-            <button
-              type="button"
-              className={`filter-tab-btn ${filterType === 'audio' ? 'active' : ''}`}
-              onClick={() => setFilterType('audio')}
-            >
-              Audio (MP3)
-            </button>
+            {hasVideos && (
+              <button
+                type="button"
+                className={`filter-tab-btn ${filterType === 'video' ? 'active' : ''}`}
+                onClick={() => setFilterType('video')}
+              >
+                Video (MP4)
+              </button>
+            )}
+            {hasAudio && (
+              <button
+                type="button"
+                className={`filter-tab-btn ${filterType === 'audio' ? 'active' : ''}`}
+                onClick={() => setFilterType('audio')}
+              >
+                Audio (MP3)
+              </button>
+            )}
+            {hasImages && (
+              <button
+                type="button"
+                className={`filter-tab-btn ${filterType === 'image' ? 'active' : ''}`}
+                onClick={() => setFilterType('image')}
+              >
+                Cover / Image
+              </button>
+            )}
           </div>
 
-          {/* Download Options (Clean minimal rows matching image copy.png) */}
+          {/* Download Options */}
           <div id="downloadList" className="download-options">
             {filteredDownloads.map((dl, idx) => {
               const label =
                 dl.quality ||
                 dl.type ||
                 (dl.isAudio ? 'High Quality Audio' : `Download Option ${idx + 1}`);
-              const formatBadge = dl.isAudio ? 'MP3' : (dl.format || 'MP4');
+              const isImg = dl.isImage || dl.type?.toLowerCase().includes('cover') || dl.format === 'jpg' || dl.format === 'png';
+              const formatBadge = dl.isAudio ? 'MP3' : isImg ? 'Cover (JPG)' : (dl.format?.toUpperCase() || 'MP4');
               const isDownloading = downloadingIdx === idx;
               const isCopied = copiedIdx === idx;
               const itemNum = String(idx + 1).padStart(2, '0');

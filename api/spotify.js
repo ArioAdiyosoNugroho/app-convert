@@ -127,12 +127,23 @@ export default async function handler(req, res) {
     const downloads = [
       {
         type: `${title} [MP3]`,
-        quality: "320kbps MP3",
+        quality: "320kbps MP3 Audio",
         isAudio: true,
         format: "mp3",
         url: mp3Url,
       },
     ];
+
+    if (thumbnail && thumbnail.startsWith("http")) {
+      downloads.push({
+        type: "Cover Art (HD Image)",
+        quality: "HD Cover Image",
+        isAudio: false,
+        isImage: true,
+        format: "jpg",
+        url: thumbnail,
+      });
+    }
 
     res.status(200).json({
       status: true,
