@@ -42,6 +42,20 @@ function MainApp() {
 
   const isDesktop = effectiveMode === 'desktop';
 
+  React.useEffect(() => {
+    if (isDesktop) {
+      document.body.classList.add('desktop-mode-active');
+      document.documentElement.classList.add('desktop-mode-active');
+    } else {
+      document.body.classList.remove('desktop-mode-active');
+      document.documentElement.classList.remove('desktop-mode-active');
+    }
+    return () => {
+      document.body.classList.remove('desktop-mode-active');
+      document.documentElement.classList.remove('desktop-mode-active');
+    };
+  }, [isDesktop]);
+
   return (
     <>
       <BackgroundAnimation />

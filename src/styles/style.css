@@ -111,6 +111,21 @@
   --shadow-accent: 0 8px 24px -4px rgba(255, 255, 255, 0.15);
 }
 
+[data-theme="dark"] .sidebar-brand-img,
+[data-theme="amoled"] .sidebar-brand-img,
+[data-theme="tokyo"] .sidebar-brand-img,
+[data-theme="cyberpunk"] .sidebar-brand-img,
+[data-theme="dark"] .brand-avatar-img,
+[data-theme="amoled"] .brand-avatar-img,
+[data-theme="tokyo"] .brand-avatar-img,
+[data-theme="cyberpunk"] .brand-avatar-img,
+[data-theme="dark"] .about-avatar-img,
+[data-theme="amoled"] .about-avatar-img,
+[data-theme="tokyo"] .about-avatar-img,
+[data-theme="cyberpunk"] .about-avatar-img {
+  filter: invert(1);
+}
+
 /* --------------------------------------------------------------------------
    3. Reset & Universal Typography Enforcement
    -------------------------------------------------------------------------- */
@@ -297,29 +312,28 @@ main {
 }
 
 .brand-avatar-box {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  background-color: var(--surface);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px;
-  overflow: hidden;
+  padding: 0;
+  overflow: visible;
   transition: var(--transition);
 }
 
 .brand-avatar-box:hover {
-  transform: scale(1.04);
-  border-color: var(--border-hover);
+  transform: scale(1.05);
 }
 
 .brand-avatar-img {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  display: block;
 }
 
 .brand-text-group {
@@ -3234,13 +3248,32 @@ input[type="text"]#urlInput::placeholder,
 /* --------------------------------------------------------------------------
    18. Desktop Layout & Widescreen Studio Mode (Mode Dekstop vs Mode Mobile)
    -------------------------------------------------------------------------- */
+/* Viewport Lock for Desktop Mode to prevent window-level scroll */
+html.desktop-mode-active,
+body.desktop-mode-active,
+html:has(.desktop-layout-shell),
+body:has(.desktop-layout-shell) {
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+}
+
+body.desktop-mode-active #root,
+body:has(.desktop-layout-shell) #root {
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+}
+
 .desktop-layout-shell {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
   width: 100%;
   background: var(--bg-color);
   position: relative;
   z-index: 1;
+  overflow: hidden;
 }
 
 /* Desktop Sidebar */
@@ -3248,8 +3281,9 @@ input[type="text"]#urlInput::placeholder,
   width: 270px;
   min-width: 270px;
   height: 100vh;
-  position: sticky;
-  top: 0;
+  max-height: 100vh;
+  flex-shrink: 0;
+  position: relative;
   background: var(--card-bg);
   border-right: 1px solid var(--border-color);
   display: flex;
@@ -3257,6 +3291,7 @@ input[type="text"]#urlInput::placeholder,
   padding: 24px 20px;
   box-sizing: border-box;
   overflow-y: auto;
+  overflow-x: hidden;
   z-index: 20;
 }
 
@@ -3270,22 +3305,22 @@ input[type="text"]#urlInput::placeholder,
 }
 
 .sidebar-brand-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 13px;
-  background: #000000;
+  width: 32px;
+  height: 32px;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  border: none;
+  box-shadow: none;
   flex-shrink: 0;
 }
 
 .sidebar-brand-img {
-  width: 26px;
-  height: 26px;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+  display: block;
 }
 
 .sidebar-brand-info {
@@ -3544,20 +3579,23 @@ input[type="text"]#urlInput::placeholder,
   min-width: 0;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  position: relative;
 }
 
 .desktop-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 22px 40px;
+  padding: 18px 40px;
   border-bottom: 1px solid var(--border-color);
   background: var(--glass-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  position: sticky;
-  top: 0;
+  position: relative;
+  flex-shrink: 0;
   z-index: 15;
 }
 
@@ -3682,11 +3720,45 @@ input[type="text"]#urlInput::placeholder,
 
 .desktop-main-content {
   flex: 1;
-  padding: 36px 40px 60px 40px;
+  padding: 32px 40px 60px 40px;
   max-width: 1400px;
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+/* Custom Sleek Scrollbars */
+.desktop-sidebar::-webkit-scrollbar,
+.desktop-main-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.desktop-sidebar::-webkit-scrollbar-track,
+.desktop-main-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.desktop-sidebar::-webkit-scrollbar-thumb,
+.desktop-main-content::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 999px;
+}
+
+.desktop-sidebar::-webkit-scrollbar-thumb:hover,
+.desktop-main-content::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+@media (max-width: 1240px) {
+  .desktop-main-content {
+    padding: 24px 24px 48px 24px;
+  }
+  .desktop-topbar {
+    padding: 14px 24px;
+  }
 }
 
 /* Desktop Home Layout Grid */
@@ -3696,6 +3768,13 @@ input[type="text"]#urlInput::placeholder,
   gap: 32px;
   align-items: start;
   width: 100%;
+}
+
+@media (max-width: 1180px) {
+  .desktop-home-mode .home-layout-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
 }
 
 .desktop-home-mode .home-main-col {
@@ -4518,22 +4597,22 @@ input[type="text"]#urlInput::placeholder,
 }
 
 .about-avatar-frame {
-  width: 58px;
-  height: 58px;
-  border-radius: 18px;
-  background: #000000;
+  width: 48px;
+  height: 48px;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  border: none;
+  box-shadow: none;
   margin-bottom: 4px;
 }
 
 .about-avatar-img {
-  width: 32px;
-  height: 32px;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+  display: block;
 }
 
 .about-app-name {
