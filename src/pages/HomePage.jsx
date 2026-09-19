@@ -377,10 +377,10 @@ export default function HomePage({ isDesktop }) {
 
     downloadFile(dlOption.url, hint, {
       onStart: () => {
-        showToast(t('toast-downloading', `📥 Downloading ${mediaType}... Please wait`), 'info');
+        showToast(t('toast-downloading', `Downloading ${mediaType}... Please wait`), 'info');
       },
       onSuccess: () => {
-        showToast(t('toast-download-success', `✅ ${mediaType} saved successfully!`), 'success');
+        showToast(t('toast-download-success', `${mediaType} saved successfully!`), 'success');
       },
       onFallback: () => {
         showToast('Opening in new tab — tap & hold to save manually.', 'info');
