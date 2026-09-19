@@ -570,18 +570,21 @@ export default function HomePage({ isDesktop }) {
               autoComplete="off"
               value={displayUrl || url}
               onChange={(e) => {
-                // Saat user ketik manual, simpan keduanya (raw = display karena belum di-paste)
-                setUrl(e.target.value);
-                setDisplayUrl(e.target.value);
+                // Hanya untuk ketik manual — jangan override saat paste
+                const val = e.target.value;
+                setUrl(val);
+                setDisplayUrl(val);
               }}
               onKeyDown={(e) => e.key === 'Enter' && handleAnalyzeClick()}
               onPaste={(e) => {
-                // Ambil teks paste, simpan full URL + tampilkan singkat, lalu blur
+                e.preventDefault(); // cegah browser masukkan teks ke DOM (yang akan trigger onChange dengan full URL)
+                const pastedText = (e.clipboardData || window.clipboardData).getData('text').trim();
+                if (!pastedText) return;
+                setUrl(pastedText);
+                setDisplayUrl(shortenUrl(pastedText));
+                showToast(t('toast-pasted', 'Pasted from clipboard!'), 'success');
+                // Blur agar mobile browser tidak scroll ke posisi cursor
                 setTimeout(() => {
-                  const pastedVal = inputRef.current?.value || '';
-                  const fullUrl = pastedVal.trim();
-                  setUrl(fullUrl);
-                  setDisplayUrl(shortenUrl(fullUrl));
                   if (inputRef.current) {
                     inputRef.current.scrollLeft = 0;
                     inputRef.current.blur();
