@@ -30,7 +30,7 @@ export default function ConvertProgress({ targetUrl, onCancel, platform = null }
   const platformInfo = getPlatformInfo(targetUrl);
 
   // Potong URL panjang agar tidak overflow card di mobile
-  const truncateUrl = (url, maxLen = 45) => {
+  const truncateUrl = (url, maxLen = 12) => {
     if (!url || url.length <= maxLen) return url;
     // Tampilkan domain + awal path saja, potong sisanya
     try {
