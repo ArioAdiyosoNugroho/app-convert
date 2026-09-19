@@ -8,28 +8,52 @@
  *  - Support file besar tanpa buffer penuh di memory server
  */
 
-const MAX_TIMEOUT_MS = 9000;
+const MAX_TIMEOUT_MS = 60000;
+const CHROME_UA =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36';
 
 export default async function handler(req, res) {
+  const setStatus = (code) => {
+    if (res.status) res.status(code);
+    else res.statusCode = code;
+    return res;
+  };
+
+  const sendJson = (data) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(data));
+  };
+
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
-    res.status(204).end();
+    setStatus(204);
+    res.end();
     return;
   }
 
   if (req.method !== 'GET') {
-    res.status(405).json({ error: 'Method not allowed' });
+    setStatus(405);
+    sendJson({ error: 'Method not allowed' });
     return;
   }
 
-  const { url, filename } = req.query;
+  let url = req.query?.url;
+  let filename = req.query?.filename;
+  if (!url && req.url) {
+    try {
+      const parsedUrl = new URL(req.url, 'http://localhost');
+      url = parsedUrl.searchParams.get('url');
+      filename = filename || parsedUrl.searchParams.get('filename');
+    } catch (_) {}
+  }
 
   if (!url || typeof url !== 'string') {
-    res.status(400).json({ error: 'Missing ?url= parameter' });
+    setStatus(400);
+    sendJson({ error: 'Missing ?url= parameter' });
     return;
   }
 
@@ -40,7 +64,8 @@ export default async function handler(req, res) {
       throw new Error('Unsupported protocol');
     }
   } catch {
-    res.status(400).json({ error: 'Invalid target URL' });
+    setStatus(400);
+    sendJson({ error: 'Invalid target URL' });
     return;
   }
 
@@ -51,8 +76,9 @@ export default async function handler(req, res) {
     const upstream = await fetch(targetUrl.toString(), {
       method: 'GET',
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; Grabbl/1.0)',
+        'User-Agent': CHROME_UA,
         'Accept': '*/*',
+        'Referer': targetUrl.origin + '/',
       },
       signal: controller.signal,
       redirect: 'follow',
@@ -61,7 +87,8 @@ export default async function handler(req, res) {
     clearTimeout(timeoutId);
 
     if (!upstream.ok) {
-      res.status(upstream.status).json({ error: `Upstream returned ${upstream.status}` });
+      setStatus(upstream.status);
+      sendJson({ error: `Upstream returned ${upstream.status}` });
       return;
     }
 
@@ -113,7 +140,8 @@ export default async function handler(req, res) {
     clearTimeout(timeoutId);
     if (!res.headersSent) {
       const msg = err.name === 'AbortError' ? 'Download timed out.' : err.message || 'Download failed.';
-      res.status(502).json({ error: msg });
+      setStatus(502);
+      sendJson({ error: msg });
     }
   }
 }

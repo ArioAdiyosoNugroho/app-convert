@@ -99,15 +99,22 @@ export default async function handler(req, res) {
       return;
     }
 
-    // 3. Convert YouTube Video to Direct MP3 via ytmp3.mobi
+    // 3. Convert YouTube Video to Direct MP3 (loader.to as primary, with fallbacks)
     let mp3Url = null;
     try {
-      mp3Url = await scrapeYtmp3MobiAudio(videoId, doFetch, remaining);
+      mp3Url = await scrapeLoaderToAudio(videoId, doFetch, remaining);
     } catch (e) {
-      console.warn("[Spotify API] ytmp3.mobi error:", e.message);
+      console.warn("[Spotify API] loader.to error:", e.message);
     }
 
-    // 4. Fallback to convert1s if needed
+    if (!mp3Url && remaining() > 8000) {
+      try {
+        mp3Url = await scrapeYtmp3MobiAudio(videoId, doFetch, remaining);
+      } catch (e) {
+        console.warn("[Spotify API] ytmp3.mobi error:", e.message);
+      }
+    }
+
     if (!mp3Url && remaining() > 8000) {
       try {
         mp3Url = await scrapeConvert1sAudio(videoId, doFetch, remaining);
@@ -162,7 +169,48 @@ export default async function handler(req, res) {
   }
 }
 
-// ─── ytmp3.mobi MP3 Scraper Helper ─────────────────────────────────────────────
+// ─── loader.to MP3 Scraper Helper (Primary & Reliable) ─────────────────────────
+async function scrapeLoaderToAudio(videoId, doFetch, remaining) {
+  const ytUrl = `https://www.youtube.com/watch?v=${videoId}`;
+  const initRes = await doFetch(
+    `https://loader.to/ajax/download.php?format=mp3&url=${encodeURIComponent(ytUrl)}`,
+    {
+      headers: {
+        "User-Agent": CHROME_UA,
+        Accept: "application/json, text/plain, */*",
+      },
+    },
+    10000
+  );
+  if (!initRes.ok) throw new Error("Loader.to init HTTP " + initRes.status);
+  const initData = await initRes.json();
+  if (!initData || !initData.success) throw new Error("Loader.to init returned unsuccessful");
+
+  let dlUrl = initData.download_url || initData.url;
+  const progUrl = initData.progress_url;
+  if (dlUrl) return dlUrl;
+  if (!progUrl) throw new Error("No progress URL from loader.to");
+
+  let attempts = 0;
+  while (attempts < 16 && remaining() > 2500) {
+    await sleep(1200);
+    if (remaining() < 2000) break;
+    const progRes = await doFetch(progUrl, { headers: { "User-Agent": CHROME_UA } }, 5000).catch(() => null);
+    if (!progRes?.ok) {
+      attempts++;
+      continue;
+    }
+    const progData = await progRes.json().catch(() => null);
+    if (progData?.download_url) {
+      return progData.download_url;
+    }
+    attempts++;
+  }
+
+  return null;
+}
+
+// ─── ytmp3.mobi MP3 Scraper Helper (Fallback) ──────────────────────────────────
 async function scrapeYtmp3MobiAudio(videoId, doFetch, remaining) {
   const headers = {
     Origin: "https://ytmp3.mobi",
@@ -220,7 +268,7 @@ async function scrapeYtmp3MobiAudio(videoId, doFetch, remaining) {
   return dlUrl;
 }
 
-// ─── convert1s MP3 Scraper Helper ──────────────────────────────────────────────
+// ─── convert1s MP3 Scraper Helper (Fallback) ───────────────────────────────────
 async function scrapeConvert1sAudio(videoId, doFetch, remaining) {
   const headers = {
     Origin: "https://media.ytmp3.gg",

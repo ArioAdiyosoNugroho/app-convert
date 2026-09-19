@@ -2,6 +2,9 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import proxyHandler from './api/proxy.js';
+import downloadHandler from './api/download.js';
+import spotifyHandler from './api/spotify.js';
+import youtubeHandler from './api/youtube.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,6 +19,33 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.all('/api/proxy', async (req, res) => {
   try {
     await proxyHandler(req, res);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Direct media streaming download endpoint
+app.all('/api/download', async (req, res) => {
+  try {
+    await downloadHandler(req, res);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Spotify scraper & MP3 generator
+app.all('/api/spotify', async (req, res) => {
+  try {
+    await spotifyHandler(req, res);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// YouTube scraper & MP3 generator
+app.all('/api/youtube', async (req, res) => {
+  try {
+    await youtubeHandler(req, res);
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

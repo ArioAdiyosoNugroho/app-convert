@@ -367,8 +367,8 @@ export default function HomePage({ isDesktop }) {
       return;
     }
 
-    // Hint untuk nama file (quality label atau format)
-    const hint = dlOption.quality || dlOption.type || dlOption.format || 'media';
+    // Hint untuk nama file (prioritaskan judul lagu/video)
+    const hint = currentResult?.title || dlOption.type || dlOption.quality || dlOption.format || 'media';
     const mediaType = dlOption.isImage || dlOption.type?.toLowerCase().includes('cover')
       ? 'Cover Art'
       : dlOption.isAudio

@@ -87,10 +87,28 @@ export default async function handler(req, res) {
     }
   } catch (_) {}
 
-  // --- Step 2: Try ytmp3.mobi (lebih permissive untuk server-side) ---
+  // --- Step 2: Try loader.to (Reliable audio converter) ---
   const downloads = [];
 
   if (remaining() > 5000) {
+    try {
+      const loaderAudio = await scrapeLoaderToAudio(videoId, doFetch, remaining);
+      if (loaderAudio) {
+        downloads.push({
+          type: "MP3 320kbps",
+          quality: "320kbps Audio",
+          isAudio: true,
+          format: "mp3",
+          url: loaderAudio,
+        });
+      }
+    } catch (err) {
+      console.warn("[loader.to] Failed:", err.message);
+    }
+  }
+
+  // --- Step 3: Try ytmp3.mobi ---
+  if (downloads.length === 0 && remaining() > 5000) {
     try {
       downloads.push(...(await scrapeYtmp3Mobi(videoId, doFetch, remaining)));
     } catch (err) {
@@ -98,7 +116,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // --- Step 3: Fallback ke convert1s jika mobi gagal dan masih ada waktu ---
+  // --- Step 4: Fallback ke convert1s jika mobi gagal dan masih ada waktu ---
   if (downloads.length === 0 && remaining() > 8000) {
     try {
       downloads.push(...(await scrapeConvert1s(url, videoId, doFetch, remaining)));
@@ -275,6 +293,47 @@ async function scrapeConvert1s(url, videoId, doFetch, remaining) {
   }
 
   return results;
+}
+
+// ─── loader.to MP3 Scraper Helper (Primary & Reliable) ─────────────────────────
+async function scrapeLoaderToAudio(videoId, doFetch, remaining) {
+  const ytUrl = `https://www.youtube.com/watch?v=${videoId}`;
+  const initRes = await doFetch(
+    `https://loader.to/ajax/download.php?format=mp3&url=${encodeURIComponent(ytUrl)}`,
+    {
+      headers: {
+        "User-Agent": CHROME_UA,
+        Accept: "application/json, text/plain, */*",
+      },
+    },
+    10000
+  );
+  if (!initRes.ok) throw new Error("Loader.to init HTTP " + initRes.status);
+  const initData = await initRes.json();
+  if (!initData || !initData.success) throw new Error("Loader.to init returned unsuccessful");
+
+  let dlUrl = initData.download_url || initData.url;
+  const progUrl = initData.progress_url;
+  if (dlUrl) return dlUrl;
+  if (!progUrl) throw new Error("No progress URL from loader.to");
+
+  let attempts = 0;
+  while (attempts < 16 && remaining() > 2500) {
+    await sleep(1200);
+    if (remaining() < 2000) break;
+    const progRes = await doFetch(progUrl, { headers: { "User-Agent": CHROME_UA } }, 5000).catch(() => null);
+    if (!progRes?.ok) {
+      attempts++;
+      continue;
+    }
+    const progData = await progRes.json().catch(() => null);
+    if (progData?.download_url) {
+      return progData.download_url;
+    }
+    attempts++;
+  }
+
+  return null;
 }
 
 function sleep(ms) {

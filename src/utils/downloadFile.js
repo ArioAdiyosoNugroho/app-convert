@@ -64,7 +64,43 @@ function triggerBlobDownload(blob, filename) {
 }
 
 /**
- * Strategy 1: Direct fetch (tanpa server).
+ * Strategy 1: Via /api/download (streaming server-side download).
+ * Server fetch ke URL target dan stream langsung ke browser.
+ * Diperiksa status dan Content-Type agar tidak mendownload HTML/JSON error.
+ */
+async function fetchViaDownloadEndpoint(url, hint) {
+  const filename = guessFilename(url, '', hint);
+  const params = new URLSearchParams({ url, filename });
+
+  const res = await fetch(`${DOWNLOAD_ENDPOINT}?${params.toString()}`, {
+    method: 'GET',
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    let msg = `Server returned HTTP ${res.status}`;
+    try {
+      const errJson = await res.json();
+      if (errJson?.error) msg = errJson.error;
+    } catch (_) {}
+    throw new Error(msg);
+  }
+
+  const contentType = res.headers.get('content-type') || 'application/octet-stream';
+  if (contentType.includes('text/html') || contentType.includes('application/json')) {
+    throw new Error('Server returned an error page instead of media.');
+  }
+
+  const blob = await res.blob();
+  if (blob.size < 10000 && (hint.toLowerCase().includes('mp3') || hint.toLowerCase().includes('audio') || hint.toLowerCase().includes('video'))) {
+    throw new Error('Downloaded file is incomplete or corrupt (< 10 KB).');
+  }
+
+  return { blob, contentType };
+}
+
+/**
+ * Strategy 2: Direct fetch (tanpa server).
  * Berhasil jika CDN punya CORS header yang mengizinkan.
  */
 async function fetchDirect(url) {
@@ -73,34 +109,15 @@ async function fetchDirect(url) {
     mode: 'cors',
     cache: 'no-store',
   });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) throw new Error(`Direct HTTP ${res.status}`);
   const contentType = res.headers.get('content-type') || '';
-  if (contentType.includes('text/html')) {
-    throw new Error('Target returned HTML page instead of binary media.');
+  if (contentType.includes('text/html') || contentType.includes('application/json')) {
+    throw new Error('Direct target returned HTML page instead of binary media.');
   }
   const blob = await res.blob();
-  return { blob, contentType };
-}
-
-/**
- * Strategy 2: Via /api/download (streaming server-side).
- * Server fetch ke URL target dan stream langsung ke browser.
- * Lebih efisien untuk file besar (no base64 overhead).
- */
-async function fetchViaDownloadEndpoint(url, hint) {
-  const params = new URLSearchParams({ url });
-  if (hint) params.set('filename', `grabbl_${hint.replace(/[^a-z0-9]+/gi, '_').toLowerCase()}`);
-
-  const res = await fetch(`${DOWNLOAD_ENDPOINT}?${params.toString()}`, {
-    method: 'GET',
-    cache: 'no-store',
-  });
-  if (!res.ok) throw new Error(`Download endpoint HTTP ${res.status}`);
-  const contentType = res.headers.get('content-type') || 'application/octet-stream';
-  if (contentType.includes('text/html')) {
-    throw new Error('Download endpoint returned HTML error page.');
+  if (blob.size < 10000 && (url.includes('.mp3') || url.includes('.mp4'))) {
+    throw new Error('Downloaded direct file is too small or corrupt.');
   }
-  const blob = await res.blob();
   return { blob, contentType };
 }
 
@@ -119,7 +136,7 @@ async function fetchViaProxy(url) {
   if (json.error) throw new Error(json.error);
 
   const contentType = json.headers?.['content-type'] || 'application/octet-stream';
-  if (contentType.includes('text/html')) {
+  if (contentType.includes('text/html') || contentType.includes('application/json')) {
     throw new Error('Proxy returned HTML error page.');
   }
 
@@ -135,33 +152,18 @@ async function fetchViaProxy(url) {
     blob = new Blob([json.data || ''], { type: contentType });
   }
 
+  if (blob.size < 10000) {
+    throw new Error('Proxy returned incomplete media.');
+  }
+
   return { blob, contentType };
-}
-
-/**
- * Trigger native browser stream download via /api/download.
- * Fast instant response (< 50ms) without waiting for JS RAM blob buffering.
- */
-function triggerNativeStreamDownload(url, hint) {
-  const filename = guessFilename(url, '', hint);
-  const params = new URLSearchParams({ url });
-  if (filename) params.set('filename', filename);
-
-  const downloadUrl = `${DOWNLOAD_ENDPOINT}?${params.toString()}`;
-  const a = document.createElement('a');
-  a.href = downloadUrl;
-  a.download = filename;
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
 }
 
 /**
  * Main export: Force-download file dari URL apapun.
  *
  * @param {string} url          - URL file yang ingin didownload
- * @param {string} [hint]       - Nama/label untuk filename (e.g. "720p", "HD Audio")
+ * @param {string} [hint]       - Nama/label untuk filename (e.g. "720p", "HD Audio", atau track title)
  * @param {object} [callbacks]
  * @param {function} [callbacks.onStart]    - dipanggil saat download dimulai
  * @param {function} [callbacks.onSuccess]  - dipanggil saat download berhasil
@@ -178,18 +180,21 @@ export async function downloadFile(url, hint = '', callbacks = {}) {
 
   onStart?.();
 
-  // --- Strategy 1: Instant Native Stream Download (Fastest, 0ms delay) ---
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    try {
-      triggerNativeStreamDownload(url, hint);
-      onSuccess?.();
-      return;
-    } catch (err) {
-      console.warn('[downloadFile] Native stream download failed:', err.message);
-    }
+  let lastError = null;
+
+  // --- Strategy 1: Server-side stream via /api/download (with Content-Type & Size validation) ---
+  try {
+    const { blob, contentType } = await fetchViaDownloadEndpoint(url, hint);
+    const filename = guessFilename(url, contentType, hint);
+    triggerBlobDownload(blob, filename);
+    onSuccess?.();
+    return;
+  } catch (err) {
+    console.warn('[downloadFile] Server download endpoint failed:', err.message);
+    lastError = err.message;
   }
 
-  // --- Strategy 2: Direct fetch (tanpa server) ---
+  // --- Strategy 2: Direct fetch (CORS allowed CDN) ---
   try {
     const { blob, contentType } = await fetchDirect(url);
     const filename = guessFilename(url, contentType, hint);
@@ -198,9 +203,10 @@ export async function downloadFile(url, hint = '', callbacks = {}) {
     return;
   } catch (err) {
     console.warn('[downloadFile] Direct fetch failed:', err.message);
+    lastError = lastError || err.message;
   }
 
-  // --- Strategy 3: /api/proxy (base64 decode, fallback) ---
+  // --- Strategy 3: /api/proxy (base64 decode fallback) ---
   try {
     const { blob, contentType } = await fetchViaProxy(url);
     const filename = guessFilename(url, contentType, hint);
@@ -208,14 +214,10 @@ export async function downloadFile(url, hint = '', callbacks = {}) {
     onSuccess?.();
     return;
   } catch (err) {
-    console.warn('[downloadFile] Proxy failed, opening tab:', err.message);
+    console.warn('[downloadFile] Proxy failed:', err.message);
+    lastError = lastError || err.message;
   }
 
-  // --- Strategy 4: Fallback (window.open) ---
-  try {
-    window.open(url, '_blank', 'noopener,noreferrer');
-    onFallback?.();
-  } catch (err) {
-    onError?.(err.message || 'Download failed.');
-  }
+  // If all binary download methods failed, do not save a corrupt file!
+  onError?.(lastError || 'Download failed. Upstream source may be unavailable.');
 }
