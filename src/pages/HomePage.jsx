@@ -31,13 +31,27 @@ import {
 export default function HomePage({ isDesktop }) {
   const { t, preferServer, history, addToHistory, totalDownloads, showToast, setActivePage } = useApp();
 
-  const [url, setUrl] = useState('');
+  const [url, setUrl] = useState('');         // full URL untuk analisis
+  const [displayUrl, setDisplayUrl] = useState(''); // URL singkat untuk input display
   const [batchText, setBatchText] = useState('');
   const [isBatchMode, setIsBatchMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
 
   const inputRef = useRef(null);
+
+  // Potong URL panjang untuk display di input — analisis tetap pakai full URL
+  const shortenUrl = (rawUrl) => {
+    if (!rawUrl) return '';
+    try {
+      const u = new URL(rawUrl);
+      // Tampilkan: hostname + pathname saja, maks 50 karakter
+      const short = u.hostname + u.pathname;
+      return short.length > 50 ? short.slice(0, 50) + '...' : short;
+    } catch {
+      return rawUrl.length > 50 ? rawUrl.slice(0, 50) + '...' : rawUrl;
+    }
+  };
 
   // Server selection modal state
   const [serverModal, setServerModal] = useState({
@@ -255,13 +269,12 @@ export default function HomePage({ isDesktop }) {
         if (isBatchMode) {
           setBatchText((prev) => (prev ? prev + '\n' + text : text));
         } else {
-          setUrl(text);
-          // Reset scroll posisi input ke kiri setelah paste URL panjang
-          // Ini mencegah mobile browser scroll halaman ke kanan mengikuti cursor
+          setUrl(text.trim());
+          setDisplayUrl(shortenUrl(text.trim()));
+          // Blur input agar mobile browser tidak scroll ke posisi cursor
           setTimeout(() => {
             if (inputRef.current) {
               inputRef.current.scrollLeft = 0;
-              inputRef.current.setSelectionRange(0, 0);
               inputRef.current.blur();
             }
           }, 0);
@@ -275,7 +288,10 @@ export default function HomePage({ isDesktop }) {
 
   const handleClear = () => {
     if (isBatchMode) setBatchText('');
-    else setUrl('');
+    else {
+      setUrl('');
+      setDisplayUrl('');
+    }
     setResult(null);
   };
 
@@ -552,15 +568,22 @@ export default function HomePage({ isDesktop }) {
               id="urlInput"
               placeholder={t('placeholder-paste-link', 'Paste link here (TikTok, IG, YouTube...)')}
               autoComplete="off"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
+              value={displayUrl || url}
+              onChange={(e) => {
+                // Saat user ketik manual, simpan keduanya (raw = display karena belum di-paste)
+                setUrl(e.target.value);
+                setDisplayUrl(e.target.value);
+              }}
               onKeyDown={(e) => e.key === 'Enter' && handleAnalyzeClick()}
               onPaste={(e) => {
-                // Reset scroll ke kiri setelah paste langsung ke input
+                // Ambil teks paste, simpan full URL + tampilkan singkat, lalu blur
                 setTimeout(() => {
+                  const pastedVal = inputRef.current?.value || '';
+                  const fullUrl = pastedVal.trim();
+                  setUrl(fullUrl);
+                  setDisplayUrl(shortenUrl(fullUrl));
                   if (inputRef.current) {
                     inputRef.current.scrollLeft = 0;
-                    inputRef.current.setSelectionRange(0, 0);
                     inputRef.current.blur();
                   }
                 }, 0);
