@@ -29,6 +29,20 @@ export default function ConvertProgress({ targetUrl, onCancel, platform = null }
 
   const platformInfo = getPlatformInfo(targetUrl);
 
+  // Potong URL panjang agar tidak overflow card di mobile
+  const truncateUrl = (url, maxLen = 45) => {
+    if (!url || url.length <= maxLen) return url;
+    // Tampilkan domain + awal path saja, potong sisanya
+    try {
+      const u = new URL(url);
+      const base = u.hostname + u.pathname;
+      if (base.length > maxLen) return base.slice(0, maxLen) + '...';
+      return base + '...';
+    } catch {
+      return url.slice(0, maxLen) + '...';
+    }
+  };
+
   const STAGES = [
     {
       title: 'Handshake & Gateway',
@@ -186,7 +200,7 @@ export default function ConvertProgress({ targetUrl, onCancel, platform = null }
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
           </svg>
-          <span className="url-truncate">{targetUrl}</span>
+          <span className="url-truncate">{truncateUrl(targetUrl)}</span>
         </div>
 
         {onCancel && (
