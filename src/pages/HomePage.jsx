@@ -377,16 +377,17 @@ export default function HomePage({ isDesktop }) {
 
     downloadFile(dlOption.url, hint, {
       onStart: () => {
-        showToast(t('toast-downloading', `Downloading ${mediaType}... Please wait`), 'info');
+        // Duration 0 = Tetap muncul dengan animasi spinner sampai download selesai/gagal
+        showToast(t('toast-downloading', `Downloading ${mediaType}... Please wait`), 'info', 0);
       },
       onSuccess: () => {
-        showToast(t('toast-download-success', `${mediaType} saved successfully!`), 'success');
+        showToast(t('toast-download-success', `${mediaType} saved successfully!`), 'success', 3500);
       },
       onFallback: () => {
-        showToast('Opening in new tab — tap & hold to save manually.', 'info');
+        showToast('Opening in new tab — tap & hold to save manually.', 'info', 4000);
       },
       onError: (msg) => {
-        showToast(msg || 'Download failed. Please try again.', 'error');
+        showToast(msg || 'Download failed. Please try again.', 'error', 4000);
       },
     });
   };

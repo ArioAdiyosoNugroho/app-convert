@@ -155,11 +155,29 @@ export function AppProvider({ children }) {
 
   // Toast
   const [toast, setToast] = useState({ visible: false, message: '', type: 'info' });
-  const showToast = useCallback((message, type = 'info') => {
+  const toastTimerRef = useRef(null);
+
+  const hideToast = useCallback(() => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+      toastTimerRef.current = null;
+    }
+    setToast({ visible: false, message: '', type: 'info' });
+  }, []);
+
+  const showToast = useCallback((message, type = 'info', duration = 3000) => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+      toastTimerRef.current = null;
+    }
     setToast({ visible: true, message, type });
-    setTimeout(() => {
-      setToast({ visible: false, message: '', type: 'info' });
-    }, 3000);
+
+    if (duration > 0) {
+      toastTimerRef.current = setTimeout(() => {
+        setToast({ visible: false, message: '', type: 'info' });
+        toastTimerRef.current = null;
+      }, duration);
+    }
   }, []);
 
   // Privacy & PIN Lock
@@ -251,6 +269,7 @@ export function AppProvider({ children }) {
         clearAllHistory,
         toast,
         showToast,
+        hideToast,
         privacyLockEnabled,
         setPrivacyLockEnabled,
         storedPin,
