@@ -139,6 +139,25 @@ async function fetchViaProxy(url) {
 }
 
 /**
+ * Trigger native browser stream download via /api/download.
+ * Fast instant response (< 50ms) without waiting for JS RAM blob buffering.
+ */
+function triggerNativeStreamDownload(url, hint) {
+  const filename = guessFilename(url, '', hint);
+  const params = new URLSearchParams({ url });
+  if (filename) params.set('filename', filename);
+
+  const downloadUrl = `${DOWNLOAD_ENDPOINT}?${params.toString()}`;
+  const a = document.createElement('a');
+  a.href = downloadUrl;
+  a.download = filename;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+/**
  * Main export: Force-download file dari URL apapun.
  *
  * @param {string} url          - URL file yang ingin didownload
@@ -159,7 +178,18 @@ export async function downloadFile(url, hint = '', callbacks = {}) {
 
   onStart?.();
 
-  // --- Strategy 1: Direct fetch (tanpa server) ---
+  // --- Strategy 1: Instant Native Stream Download (Fastest, 0ms delay) ---
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    try {
+      triggerNativeStreamDownload(url, hint);
+      onSuccess?.();
+      return;
+    } catch (err) {
+      console.warn('[downloadFile] Native stream download failed:', err.message);
+    }
+  }
+
+  // --- Strategy 2: Direct fetch (tanpa server) ---
   try {
     const { blob, contentType } = await fetchDirect(url);
     const filename = guessFilename(url, contentType, hint);
@@ -170,18 +200,7 @@ export async function downloadFile(url, hint = '', callbacks = {}) {
     console.warn('[downloadFile] Direct fetch failed:', err.message);
   }
 
-  // --- Strategy 2: /api/download (streaming server-side) ---
-  try {
-    const { blob, contentType } = await fetchViaDownloadEndpoint(url, hint);
-    const filename = guessFilename(url, contentType, hint);
-    triggerBlobDownload(blob, filename);
-    onSuccess?.();
-    return;
-  } catch (err) {
-    console.warn('[downloadFile] Download endpoint failed:', err.message);
-  }
-
-  // --- Strategy 3: /api/proxy (base64 decode, file kecil-medium) ---
+  // --- Strategy 3: /api/proxy (base64 decode, fallback) ---
   try {
     const { blob, contentType } = await fetchViaProxy(url);
     const filename = guessFilename(url, contentType, hint);

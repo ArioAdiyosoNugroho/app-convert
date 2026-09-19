@@ -190,20 +190,26 @@ async function scrapeYtmp3MobiAudio(videoId, doFetch, remaining) {
   if (!convData || convData.error) throw new Error("Convert returned error");
 
   let dlUrl = convData.downloadURL;
+  if (dlUrl) {
+    if (dlUrl.startsWith("//")) dlUrl = "https:" + dlUrl;
+    if (dlUrl.startsWith("/")) dlUrl = "https://ytmp3.mobi" + dlUrl;
+    return dlUrl;
+  }
+
   const progUrl = convData.progressURL;
   let progress = 0;
   let attempts = 0;
 
-  while (progress < 3 && attempts < 10 && remaining() > 2000) {
-    await sleep(1200);
+  while (progress < 3 && attempts < 8 && remaining() > 2000) {
+    await sleep(800);
     if (remaining() < 1500) break;
-    const progRes = await doFetch(progUrl, { headers }, 5000).catch(() => null);
+    const progRes = await doFetch(progUrl, { headers }, 4000).catch(() => null);
     if (!progRes?.ok) break;
     const progData = await progRes.json().catch(() => null);
     if (!progData) break;
     progress = progData.progress ?? 0;
     if (progData.downloadURL) dlUrl = progData.downloadURL;
-    if (progress >= 3) break;
+    if (progress >= 3 || dlUrl) break;
     attempts++;
   }
 
