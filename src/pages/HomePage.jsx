@@ -256,6 +256,15 @@ export default function HomePage({ isDesktop }) {
           setBatchText((prev) => (prev ? prev + '\n' + text : text));
         } else {
           setUrl(text);
+          // Reset scroll posisi input ke kiri setelah paste URL panjang
+          // Ini mencegah mobile browser scroll halaman ke kanan mengikuti cursor
+          setTimeout(() => {
+            if (inputRef.current) {
+              inputRef.current.scrollLeft = 0;
+              inputRef.current.setSelectionRange(0, 0);
+              inputRef.current.blur();
+            }
+          }, 0);
         }
         showToast(t('toast-pasted', 'Pasted from clipboard!'), 'success');
       }
@@ -546,6 +555,16 @@ export default function HomePage({ isDesktop }) {
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAnalyzeClick()}
+              onPaste={(e) => {
+                // Reset scroll ke kiri setelah paste langsung ke input
+                setTimeout(() => {
+                  if (inputRef.current) {
+                    inputRef.current.scrollLeft = 0;
+                    inputRef.current.setSelectionRange(0, 0);
+                    inputRef.current.blur();
+                  }
+                }, 0);
+              }}
             />
           ) : (
             <textarea
