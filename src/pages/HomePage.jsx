@@ -31,8 +31,7 @@ import {
 export default function HomePage({ isDesktop }) {
   const { t, preferServer, history, addToHistory, totalDownloads, showToast, setActivePage } = useApp();
 
-  const [url, setUrl] = useState('');         // full URL untuk analisis
-  const [displayUrl, setDisplayUrl] = useState(''); // URL singkat untuk input display
+  const [url, setUrl] = useState(''); // full URL untuk analisis
   const [batchText, setBatchText] = useState('');
   const [isBatchMode, setIsBatchMode] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -40,16 +39,23 @@ export default function HomePage({ isDesktop }) {
 
   const inputRef = useRef(null);
 
-  // Potong URL panjang untuk display di input — analisis tetap pakai full URL
-  const shortenUrl = (rawUrl) => {
+  // Potong URL untuk display di input — analisis tetap pakai url state (full)
+  const shortenForDisplay = (rawUrl) => {
     if (!rawUrl) return '';
     try {
-      const u = new URL(rawUrl);
-      // Tampilkan: hostname + pathname saja, maks 50 karakter
+      const u = new URL(rawUrl.trim());
       const short = u.hostname + u.pathname;
-      return short.length > 50 ? short.slice(0, 50) + '...' : short;
+      return short.length > 48 ? short.slice(0, 48) + '...' : short;
     } catch {
-      return rawUrl.length > 50 ? rawUrl.slice(0, 50) + '...' : rawUrl;
+      return rawUrl.length > 48 ? rawUrl.slice(0, 48) + '...' : rawUrl;
+    }
+  };
+
+  // Set tampilan input via DOM (uncontrolled) — tidak trigger overflow
+  const setInputDisplay = (rawUrl) => {
+    if (inputRef.current) {
+      inputRef.current.value = shortenForDisplay(rawUrl);
+      inputRef.current.scrollLeft = 0;
     }
   };
 
@@ -269,15 +275,10 @@ export default function HomePage({ isDesktop }) {
         if (isBatchMode) {
           setBatchText((prev) => (prev ? prev + '\n' + text : text));
         } else {
-          setUrl(text.trim());
-          setDisplayUrl(shortenUrl(text.trim()));
-          // Blur input agar mobile browser tidak scroll ke posisi cursor
-          setTimeout(() => {
-            if (inputRef.current) {
-              inputRef.current.scrollLeft = 0;
-              inputRef.current.blur();
-            }
-          }, 0);
+          const trimmed = text.trim();
+          setUrl(trimmed);          // simpan full URL untuk analisis
+          setInputDisplay(trimmed); // tampilkan URL singkat di input DOM
+          setTimeout(() => inputRef.current?.blur(), 0); // blur agar mobile tidak scroll
         }
         showToast(t('toast-pasted', 'Pasted from clipboard!'), 'success');
       }
@@ -290,7 +291,7 @@ export default function HomePage({ isDesktop }) {
     if (isBatchMode) setBatchText('');
     else {
       setUrl('');
-      setDisplayUrl('');
+      if (inputRef.current) inputRef.current.value = '';
     }
     setResult(null);
   };
@@ -568,28 +569,20 @@ export default function HomePage({ isDesktop }) {
               id="urlInput"
               placeholder={t('placeholder-paste-link', 'Paste link here (TikTok, IG, YouTube...)')}
               autoComplete="off"
-              value={displayUrl || url}
+              defaultValue=""
               onChange={(e) => {
-                // Hanya untuk ketik manual — jangan override saat paste
-                const val = e.target.value;
-                setUrl(val);
-                setDisplayUrl(val);
+                // User ketik manual — update url state langsung dari DOM
+                setUrl(e.target.value);
               }}
               onKeyDown={(e) => e.key === 'Enter' && handleAnalyzeClick()}
               onPaste={(e) => {
-                e.preventDefault(); // cegah browser masukkan teks ke DOM (yang akan trigger onChange dengan full URL)
+                e.preventDefault();
                 const pastedText = (e.clipboardData || window.clipboardData).getData('text').trim();
                 if (!pastedText) return;
-                setUrl(pastedText);
-                setDisplayUrl(shortenUrl(pastedText));
+                setUrl(pastedText);               // simpan full URL
+                setInputDisplay(pastedText);       // tampilkan pendek di DOM
                 showToast(t('toast-pasted', 'Pasted from clipboard!'), 'success');
-                // Blur agar mobile browser tidak scroll ke posisi cursor
-                setTimeout(() => {
-                  if (inputRef.current) {
-                    inputRef.current.scrollLeft = 0;
-                    inputRef.current.blur();
-                  }
-                }, 0);
+                setTimeout(() => inputRef.current?.blur(), 0);
               }}
             />
           ) : (
