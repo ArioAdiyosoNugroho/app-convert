@@ -2180,15 +2180,19 @@ input[type="text"]#urlInput::placeholder,
 .history-item {
   background-color: var(--surface);
   border: 1px solid var(--border-color);
-  border-radius: 22px;
+  border-radius: 20px;
   padding: 14px 18px;
   display: flex;
   align-items: center;
   gap: 14px;
   width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
   transition: var(--transition);
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
 }
 
 .history-item:hover {
@@ -2208,9 +2212,9 @@ input[type="text"]#urlInput::placeholder,
 
 .history-thumb-container {
   position: relative;
-  width: 60px;
-  height: 60px;
-  border-radius: 16px;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
   overflow: hidden;
   flex-shrink: 0;
   background-color: var(--surface-subtle);
@@ -2255,11 +2259,12 @@ input[type="text"]#urlInput::placeholder,
   display: flex;
   flex-direction: column;
   gap: 4px;
+  overflow: hidden;
 }
 
 .history-item-title {
   font-family: var(--font-family) !important;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--text-main);
   line-height: 1.35;
@@ -2268,13 +2273,18 @@ input[type="text"]#urlInput::placeholder,
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .history-item-tags {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .history-platform-badge {
@@ -2288,6 +2298,7 @@ input[type="text"]#urlInput::placeholder,
   border: 1px solid var(--border-color);
   padding: 2px 8px;
   border-radius: var(--radius-pill);
+  flex-shrink: 0;
 }
 
 .history-item-date {
@@ -2295,6 +2306,9 @@ input[type="text"]#urlInput::placeholder,
   font-size: 0.72rem;
   font-weight: 400;
   color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .history-item-actions {
@@ -2302,6 +2316,7 @@ input[type="text"]#urlInput::placeholder,
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 .download-history-btn,
@@ -4040,22 +4055,31 @@ body:has(.desktop-layout-shell) #root {
   border-color: var(--primary);
 }
 
+/* Desktop History Container & Widescreen Studio Mode */
+.desktop-history-mode {
+  width: 100% !important;
+  max-width: 1120px !important;
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
+}
+
 /* Desktop History Toolbar & Metrics */
 .desktop-history-metrics-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-  margin-bottom: 24px;
+  gap: 16px;
+  margin-bottom: 20px;
+  width: 100%;
 }
 
 .desktop-metric-card {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: 18px;
-  padding: 22px;
+  padding: 20px 22px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
 }
 
@@ -4093,13 +4117,15 @@ body:has(.desktop-layout-shell) #root {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 24px;
+  gap: 14px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 12px 18px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .desktop-history-search {
@@ -4194,11 +4220,52 @@ body:has(.desktop-layout-shell) #root {
   color: #ffffff;
 }
 
-/* History Grid for Desktop */
+/* History Balanced 2-Column Grid for Desktop */
 .history-list.desktop-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+
+@media (max-width: 1080px) {
+  .history-list.desktop-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .history-item {
+    padding: 10px 12px;
+    gap: 10px;
+    border-radius: 16px;
+  }
+
+  .history-item-number {
+    display: none;
+  }
+
+  .history-thumb-container {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+  }
+
+  .history-item-title {
+    font-size: 0.82rem;
+    -webkit-line-clamp: 1;
+  }
+
+  .download-history-btn,
+  .copy-history-btn,
+  .delete-history-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .history-item-actions {
+    gap: 4px;
+  }
 }
 
 /* Forced Mobile Simulator Mode (when desktop user previews mobile) */
