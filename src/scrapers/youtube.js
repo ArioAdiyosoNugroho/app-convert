@@ -96,6 +96,15 @@ export async function scrapeYouTube(url) {
           thumbnail = oData.thumbnail_url || thumbnail;
         }
       } catch (e) {}
+
+      try {
+        const testMax = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
+        const headRes = await scraperFetch({ url: testMax, method: "HEAD", rawResponse: true });
+        if (headRes && (headRes.status === 200 || !headRes.status)) {
+          thumbnail = testMax;
+        }
+      } catch (e) {}
+
       return { title, thumbnail };
     };
 
@@ -177,10 +186,20 @@ export async function scrapeYouTube(url) {
         runConvert("mp4", "720p"),
         runConvert("mp3", ""),
       ]);
-      if (r720?.url) downloads.push({ type: "MP4 720p", url: r720.url, quality: "HD 720p" });
-      if (mp3?.url) downloads.push({ type: "MP3 Audio", url: mp3.url, quality: "128kbps", isAudio: true });
+      if (r720?.url) downloads.push({ type: "MP4 Video (720p HD)", quality: "720p HD", format: "mp4", url: r720.url });
+      if (mp3?.url) downloads.push({ type: "MP3 Audio", quality: "128kbps Audio", isAudio: true, format: "mp3", url: mp3.url });
+      if (meta.thumbnail) {
+        downloads.push({
+          type: "Cover [HD]",
+          quality: "Cover Art (HD)",
+          format: "jpg",
+          ext: "jpg",
+          isImage: true,
+          url: meta.thumbnail,
+        });
+      }
 
-      if (downloads.length > 0) {
+      if (downloads.some((d) => !d.isImage)) {
         _ytSource = null;
         return createScraperResult(true, {
           ...meta,
@@ -222,7 +241,7 @@ export async function scrapeYouTube(url) {
               dlUrl = convData.downloadURL,
               progUrl = convData.progressURL;
             let attempts = 0;
-            while (progress < 3 && attempts < 4) {
+            while (progress < 3 && attempts < 8) {
               await new Promise((r) => setTimeout(r, 700));
               const progData = await scraperFetch(
                 { url: progUrl, headers },
@@ -247,9 +266,19 @@ export async function scrapeYouTube(url) {
             fetchSingle("mp3"),
           ]);
           const downloads = [];
-          if (mp4Url) downloads.push({ type: "MP4 Video", url: mp4Url, quality: "720p" });
-          if (mp3Url) downloads.push({ type: "MP3 Audio", url: mp3Url, quality: "128kbps", isAudio: true });
-          if (downloads.length > 0) {
+          if (mp4Url) downloads.push({ type: "MP4 Video (720p HD)", quality: "720p HD", format: "mp4", url: mp4Url });
+          if (mp3Url) downloads.push({ type: "MP3 Audio", quality: "128kbps Audio", isAudio: true, format: "mp3", url: mp3Url });
+          if (meta.thumbnail) {
+            downloads.push({
+              type: "Cover [HD]",
+              quality: "Cover Art (HD)",
+              format: "jpg",
+              ext: "jpg",
+              isImage: true,
+              url: meta.thumbnail,
+            });
+          }
+          if (downloads.some((d) => !d.isImage)) {
             _ytSource = null;
             return createScraperResult(true, { ...meta, downloads, sourceUrl: url });
           }
@@ -285,7 +314,8 @@ export async function scrapeYouTube(url) {
           return createScraperResult(true, {
             ...meta,
             downloads: [
-              { type: "MP4 Video (HD)", url: cobaltRes.url, quality: "720p" },
+              { type: "MP4 Video (720p HD)", url: cobaltRes.url, quality: "720p HD", format: "mp4" },
+              { type: "Cover [HD]", quality: "Cover Art (HD)", format: "jpg", ext: "jpg", isImage: true, url: meta.thumbnail },
             ],
             sourceUrl: url,
           });

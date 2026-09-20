@@ -328,7 +328,10 @@ export default function HomePage({ isDesktop }) {
         const u = items[i].url;
         if (u.includes('tiktok.com')) res = await scrapeTikTok(u);
         else if (u.includes('instagram.com')) res = await scrapeInstagram(u);
-        else if (u.includes('youtube.com') || u.includes('youtu.be')) res = await scrapeYouTube(u);
+        else if (u.includes('youtube.com') || u.includes('youtu.be')) {
+          setYouTubeSource(preferServer === 'server1' ? 'gg' : 'mobi');
+          res = await scrapeYouTube(u);
+        }
         else if (u.includes('twitter.com') || u.includes('x.com')) res = await scrapeTwitter(u);
         else if (u.includes('spotify.com')) res = await scrapeSpotify(u);
         else if (u.includes('pinterest.com') || u.includes('pin.it')) res = await scrapePinterest(u);
@@ -368,12 +371,20 @@ export default function HomePage({ isDesktop }) {
     }
 
     // Hint untuk nama file (prioritaskan judul lagu/video)
-    const hint = currentResult?.title || dlOption.type || dlOption.quality || dlOption.format || 'media';
-    const mediaType = dlOption.isImage || dlOption.type?.toLowerCase().includes('cover')
+    const isImg = dlOption.isImage || dlOption.type?.toLowerCase().includes('cover') || dlOption.format === 'jpg' || dlOption.format === 'png';
+    const isAud = dlOption.isAudio || dlOption.type?.toLowerCase().includes('audio') || dlOption.format === 'mp3';
+    const prefixTitle = currentResult?.title || 'media';
+    const hint = isImg
+      ? `${prefixTitle} - Cover`
+      : isAud
+      ? `${prefixTitle} - Audio`
+      : `${prefixTitle} - ${dlOption.quality || dlOption.type || 'Video'}`;
+
+    const mediaType = isImg
       ? 'Cover Art'
-      : dlOption.isAudio
+      : isAud
       ? 'MP3 Audio'
-      : 'File';
+      : 'Video';
 
     downloadFile(dlOption.url, hint, {
       onStart: () => {

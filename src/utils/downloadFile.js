@@ -20,13 +20,26 @@ const PROXY_ENDPOINT = '/api/proxy';
  * @returns {string}
  */
 function guessFilename(url, contentType = '', hint = '') {
-  const isAudioHint = /mp3|audio|sound/i.test(hint);
-  const isVideoHint = /mp4|video|720p|1080p|360p|hd/i.test(hint);
+  const isImageHint = /cover|thumb|poster|image|picture|photo|jpg|jpeg|png|webp/i.test(hint);
+  const isAudioHint = !isImageHint && /mp3|audio|sound|bitrate/i.test(hint);
+  const isVideoHint = !isImageHint && /mp4|video|720p|1080p|360p|480p|hd|fhd|mkv|webm/i.test(hint);
 
   try {
     const path = new URL(url).pathname;
     const basename = path.split('/').pop().split('?')[0];
-    if (basename && /\.\w{2,5}$/.test(basename) && !/\.(html?|php|aspx?|jsp)$/i.test(basename)) {
+    const nameWithoutExt = basename.split('.')[0];
+    const isGeneric =
+      !nameWithoutExt ||
+      /^(maxresdefault|hqdefault|mqdefault|default|download|videoplayback|stream|media|output|file|\d+)$/i.test(
+        nameWithoutExt
+      );
+
+    if (
+      !isGeneric &&
+      basename &&
+      /\.\w{2,5}$/.test(basename) &&
+      !/\.(html?|php|aspx?|jsp)$/i.test(basename)
+    ) {
       return decodeURIComponent(basename);
     }
   } catch (_) {
@@ -34,15 +47,16 @@ function guessFilename(url, contentType = '', hint = '') {
   }
 
   let ext = '';
-  if (/video/.test(contentType) || isVideoHint) ext = '.mp4';
+  if (/image\/jpeg/.test(contentType) || (isImageHint && /jpe?g/i.test(hint))) ext = '.jpg';
+  else if (/image\/png/.test(contentType) || (isImageHint && /png/i.test(hint))) ext = '.png';
+  else if (/image\/webp/.test(contentType) || (isImageHint && /webp/i.test(hint))) ext = '.webp';
+  else if (/image/.test(contentType) || isImageHint) ext = '.jpg';
+  else if (/video/.test(contentType) || isVideoHint) ext = '.mp4';
   else if (/audio/.test(contentType) || isAudioHint) ext = '.mp3';
-  else if (/image\/jpeg/.test(contentType)) ext = '.jpg';
-  else if (/image\/png/.test(contentType)) ext = '.png';
-  else if (/image\/webp/.test(contentType)) ext = '.webp';
   else if (/pdf/.test(contentType)) ext = '.pdf';
 
-  const slug = hint ? hint.replace(/[^a-z0-9]+/gi, '_').toLowerCase() : 'media';
-  return `grabbl_${slug}${ext || (isAudioHint ? '.mp3' : '')}`;
+  const slug = hint ? hint.replace(/[^a-z0-9]+/gi, '_').toLowerCase().replace(/^_+|_+$/g, '') : 'media';
+  return `grabbl_${slug}${ext || (isAudioHint ? '.mp3' : isImageHint ? '.jpg' : '.mp4')}`;
 }
 
 /**
@@ -152,7 +166,7 @@ async function fetchViaProxy(url) {
     blob = new Blob([json.data || ''], { type: contentType });
   }
 
-  if (blob.size < 10000) {
+  if (blob.size < 1000 || (blob.size < 10000 && (/video/.test(contentType) || /audio/.test(contentType)))) {
     throw new Error('Proxy returned incomplete media.');
   }
 

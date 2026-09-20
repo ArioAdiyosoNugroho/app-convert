@@ -108,7 +108,7 @@ export default function ConvertProgress({ targetUrl, onCancel, platform = null }
       {/* Top Header info */}
       <div className="convert-progress-header">
         <div className="convert-header-left">
-          <span className="live-pulse-dot" />
+          {/* <span className="live-pulse-dot" /> */}
           <span className="convert-status-text">CONVERTING MEDIA</span>
         </div>
         <div className="convert-badge-pill">
