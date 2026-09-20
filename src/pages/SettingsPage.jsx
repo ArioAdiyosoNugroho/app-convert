@@ -445,7 +445,7 @@ export default function SettingsPage({ isDesktop }) {
                   View User Guide & FAQ
                 </button>
                 <a
-                  href="https://github.com/rayhanrafifweb"
+                  href="https://github.com/ArioAdiyosoNugroho"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="secondary-btn"
