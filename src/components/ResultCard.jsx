@@ -179,13 +179,19 @@ export default function ResultCard({ result, originalUrl, onClose, onDownload })
           </h2>
 
           {/* Quick Filter Tabs */}
-          {/* <div className="result-filter-tabs">
+          <div className="result-filter-tabs">
             <button
               type="button"
               className={`filter-tab-btn ${filterType === 'all' ? 'active' : ''}`}
               onClick={() => setFilterType('all')}
             >
-              All Formats ({downloads.length})
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                <rect x="3" y="14" width="7" height="7" rx="1.5" />
+              </svg>
+              <span>All Formats ({downloads.length})</span>
             </button>
             {hasVideos && (
               <button
@@ -193,7 +199,10 @@ export default function ResultCard({ result, originalUrl, onClose, onDownload })
                 className={`filter-tab-btn ${filterType === 'video' ? 'active' : ''}`}
                 onClick={() => setFilterType('video')}
               >
-                Video (MP4)
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
+                  <path d="M5 4.5v15l14-7.5L5 4.5z" />
+                </svg>
+                <span>Video (MP4)</span>
               </button>
             )}
             {hasAudio && (
@@ -202,7 +211,12 @@ export default function ResultCard({ result, originalUrl, onClose, onDownload })
                 className={`filter-tab-btn ${filterType === 'audio' ? 'active' : ''}`}
                 onClick={() => setFilterType('audio')}
               >
-                Audio (MP3)
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 18V5l12-2v13" />
+                  <circle cx="6" cy="18" r="3" />
+                  <circle cx="18" cy="16" r="3" />
+                </svg>
+                <span>Audio (MP3)</span>
               </button>
             )}
             {hasImages && (
@@ -211,10 +225,15 @@ export default function ResultCard({ result, originalUrl, onClose, onDownload })
                 className={`filter-tab-btn ${filterType === 'image' ? 'active' : ''}`}
                 onClick={() => setFilterType('image')}
               >
-                Cover / Image
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2.5" ry="2.5" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21 15 16 10 5 21" />
+                </svg>
+                <span>Cover / Image</span>
               </button>
             )}
-          </div> */}
+          </div>
 
           {/* Download Options */}
           <div id="downloadList" className="download-options">
