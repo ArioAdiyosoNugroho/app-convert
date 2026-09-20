@@ -174,12 +174,12 @@ export default function ResultCard({ result, originalUrl, onClose, onDownload })
             )}
           </div>
 
-          {/* <h2 id="resultTitle" className="result-title">
+          <h2 id="resultTitle" className="result-title">
             {result.title || 'Media Processed Successfully'}
-          </h2> */}
+          </h2>
 
           {/* Quick Filter Tabs */}
-          <div className="result-filter-tabs">
+          {/* <div className="result-filter-tabs">
             <button
               type="button"
               className={`filter-tab-btn ${filterType === 'all' ? 'active' : ''}`}
@@ -214,7 +214,7 @@ export default function ResultCard({ result, originalUrl, onClose, onDownload })
                 Cover / Image
               </button>
             )}
-          </div>
+          </div> */}
 
           {/* Download Options */}
           <div id="downloadList" className="download-options">
